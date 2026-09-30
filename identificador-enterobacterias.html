@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Identificador de Enterobacterias</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,700;1,6..72,500;1,6..72,600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FBF7EE;
+  --bg-2:#F3EEE0;
+  --surface:#FFFFFF;
+  --line:#E7DFC9;
+  --ink:#2B2418;
+  --text:#3A3226;
+  --text-dim:#8A806C;
+
+  --coral:#E4572E;
+  --coral-dim:#F7DACE;
+  --teal:#0E8C82;
+  --teal-dim:#D3EEE9;
+  --gold:#F2A93B;
+  --gold-dim:#FBE7C4;
+  --violet:#6C3FA6;
+  --violet-dim:#E7DDF3;
+
+  --pos:#0E8C82;
+  --neg:#B0A48A;
+  --var:#F2A93B;
+  --bad:#D64545;
+
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+*{box-sizing:border-box;}
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:'IBM Plex Sans',system-ui,sans-serif;
+  min-height:100%;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1320px;margin:0 auto;padding:0 24px 64px;}
+header.top{
+  padding:34px 24px 26px;
+  background:
+    radial-gradient(700px 260px at 12% -30%, rgba(228,87,46,.10), transparent 65%),
+    radial-gradient(700px 260px at 88% -30%, rgba(14,140,130,.10), transparent 65%),
+    var(--bg);
+  border-bottom:2px solid var(--ink);
+}
+header.top .inner{max-width:1320px;margin:0 auto;display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;}
+.brand-mark{display:flex;align-items:center;gap:14px;}
+h1{
+  font-family:'Newsreader',serif;
+  font-weight:700;
+  font-size:clamp(27px,3.4vw,40px);
+  margin:0;
+  letter-spacing:-.01em;
+  line-height:1.05;
+  color:var(--ink);
+}
+h1 em{font-style:italic;color:var(--coral);}
+.tagline{color:var(--text-dim);font-size:14.5px;max-width:36ch;margin-top:6px;line-height:1.5;}
+.pill{
+  font-size:12.5px;font-weight:600;color:var(--ink);background:var(--gold-dim);border:1.5px solid var(--gold);
+  padding:6px 13px;border-radius:100px;white-space:nowrap;
+}
+
+main.layout{
+  display:grid;
+  grid-template-columns:minmax(320px,400px) 1fr;
+  gap:26px;
+  margin-top:30px;
+  align-items:start;
+}
+@media (max-width:900px){
+  main.layout{grid-template-columns:1fr;}
+}
+
+/* ---- form panel ---- */
+.panel{
+  background:var(--surface);
+  border:2px solid var(--ink);
+  border-radius:10px;
+  box-shadow:5px 5px 0 var(--ink);
+}
+.form-panel{position:sticky;top:20px;}
+@media (max-width:900px){.form-panel{position:static;}}
+
+.group{border-bottom:2px solid var(--line);border-left:6px solid var(--accent,var(--coral));}
+.group:last-of-type{border-bottom:none;}
+.group[data-g="0"]{--accent:var(--coral);}
+.group[data-g="1"]{--accent:var(--violet);}
+.group[data-g="2"]{--accent:var(--teal);}
+.group[data-g="3"]{--accent:var(--gold);}
+.group-head{
+  padding:16px 20px 6px 16px;
+  display:flex;align-items:baseline;gap:9px;
+}
+.group-num{
+  font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--accent);font-weight:600;
+}
+.group-title{font-size:14.5px;font-weight:700;color:var(--ink);}
+.rows{padding:4px 20px 16px 16px;display:flex;flex-direction:column;gap:10px;}
+.row{
+  display:grid;grid-template-columns:1fr auto;align-items:center;gap:12px;
+}
+.row label{font-size:13.5px;color:var(--text);line-height:1.35;}
+select{
+  appearance:none;
+  background:#FFFDF8 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="6"><path d="M0 0L5 6L10 0" fill="none" stroke="%238A806C" stroke-width="1.4"/></svg>') no-repeat right 10px center;
+  color:var(--ink);
+  border:1.5px solid var(--line);
+  border-radius:6px;
+  padding:7px 30px 7px 10px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:13px;
+  min-width:96px;
+  cursor:pointer;
+}
+select:focus-visible, button:focus-visible, .cand:focus-visible{
+  outline:3px solid var(--gold);outline-offset:1px;
+}
+.actions{padding:18px 20px 22px 16px;display:flex;gap:10px;}
+button{
+  font-family:'IBM Plex Sans',sans-serif;font-weight:700;font-size:14.5px;
+  border-radius:7px;border:2px solid var(--ink);padding:11px 18px;cursor:pointer;
+}
+.btn-primary{background:var(--coral);color:#fff;flex:1;box-shadow:3px 3px 0 var(--ink);}
+.btn-primary:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--ink);}
+.btn-ghost{background:var(--surface);color:var(--ink);}
+.btn-ghost:hover{background:var(--bg-2);}
+.count{font-size:12px;color:var(--text-dim);padding:0 20px 14px 16px;font-family:'IBM Plex Mono',monospace;}
+
+/* ---- results panel ---- */
+.results{min-height:520px;}
+.empty{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:90px 30px;color:var(--text-dim);gap:18px;
+}
+.empty p{max-width:34ch;font-size:14.5px;line-height:1.6;margin:0;}
+.empty strong{color:var(--ink);}
+
+.cands{padding:20px;display:flex;flex-direction:column;gap:8px;border-bottom:2px solid var(--line);}
+.cands h2{font-size:13px;color:var(--text-dim);margin:0 0 4px;font-weight:700;letter-spacing:.02em;}
+.cand{
+  display:grid;grid-template-columns:1fr auto auto;gap:14px;align-items:center;
+  background:var(--bg);border:1.5px solid var(--line);border-radius:8px;
+  padding:12px 14px;cursor:pointer;text-align:left;width:100%;color:var(--ink);
+}
+.cand:hover{border-color:var(--coral);}
+.cand.active{border-color:var(--ink);background:var(--coral-dim);}
+.cand .name{font-family:'Newsreader',serif;font-style:italic;font-weight:600;font-size:16px;}
+.cand .name small{display:block;font-style:normal;font-family:'IBM Plex Sans',sans-serif;color:var(--text-dim);font-size:11.5px;margin-top:2px;}
+.bar-wrap{width:110px;height:7px;background:var(--line);border-radius:100px;overflow:hidden;}
+.bar-fill{height:100%;background:var(--pos);}
+.bar-fill.warn{background:var(--var);}
+.bar-fill.bad{background:var(--bad);}
+.mismatch-tag{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--bad);white-space:nowrap;font-weight:600;}
+.match-tag{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--pos);white-space:nowrap;font-weight:600;}
+
+/* ---- report card ---- */
+.report{padding:26px 26px 8px;}
+.report-head{border-bottom:2px solid var(--line);padding-bottom:18px;margin-bottom:20px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.report-head h2{
+  font-family:'Newsreader',serif;font-style:italic;font-weight:700;
+  font-size:clamp(23px,2.6vw,31px);margin:0;color:var(--ink);
+}
+.report-head .fam{color:var(--text-dim);font-size:13px;margin-top:4px;}
+.gram-tag{
+  align-self:flex-start;font-size:12px;font-weight:600;color:var(--violet);background:var(--violet-dim);border:1.5px solid var(--violet);
+  padding:5px 11px;border-radius:100px;white-space:nowrap;
+}
+.section{margin-bottom:24px;}
+.section h3{
+  font-size:11.5px;letter-spacing:.06em;color:var(--text-dim);margin:0 0 10px;font-weight:700;
+}
+.section p{font-size:14.5px;line-height:1.65;margin:0;color:var(--text);}
+.chiplist{display:flex;flex-wrap:wrap;gap:8px;}
+.chip{
+  background:var(--bg-2);border:1.5px solid var(--line);border-radius:6px;
+  padding:6px 10px;font-size:13px;color:var(--text);
+}
+.testgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;}
+.tcell{background:var(--bg-2);border:1.5px solid var(--line);border-radius:6px;padding:8px 10px;}
+.tcell .k{font-size:11px;color:var(--text-dim);display:block;}
+.tcell .v{font-family:'IBM Plex Mono',monospace;font-size:14px;}
+.tcell.hit{border-color:var(--pos);}
+.tcell.miss{border-color:var(--bad);}
+.v.pos{color:var(--pos);font-weight:600;}
+.v.neg{color:var(--text-dim);}
+.v.var{color:var(--var);font-weight:600;}
+
+/* ---- tube visuals ---- */
+.tubes{display:flex;gap:14px;flex-wrap:wrap;padding:6px 0 4px;}
+.tube-card{display:flex;flex-direction:column;align-items:center;gap:6px;width:140px;padding:10px 6px 12px;background:var(--bg);border:1.5px solid var(--line);border-radius:10px;}
+.tube-card .tlabel{font-size:12.5px;font-weight:700;color:var(--ink);text-align:center;}
+.tube-card .tsub{font-size:10.5px;font-weight:600;color:var(--violet);text-align:center;line-height:1.3;}
+.tlines{list-style:none;margin:2px 0 0;padding:0;display:flex;flex-direction:column;gap:4px;width:100%;}
+.tlines li{font-size:11px;color:var(--text);line-height:1.35;text-align:center;}
+.tbadge{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:100px;border:1.5px solid;white-space:nowrap;}
+.tbadge.ok{color:var(--pos);background:var(--teal-dim);border-color:var(--pos);}
+.tbadge.bad{color:var(--bad);background:#FBE1E1;border-color:var(--bad);}
+.tnote{font-size:12.5px;color:var(--text-dim);line-height:1.55;margin:10px 0 0;}
+.tnote strong{color:var(--ink);}
+
+.livebar{padding:20px 22px 16px;border-bottom:2px solid var(--line);background:linear-gradient(180deg,#FFFDF6,#fff);border-radius:10px 10px 0 0;}
+.livebar h2{font-size:13px;margin:0 0 4px;color:var(--ink);font-weight:700;letter-spacing:.02em;}
+.livebar h2 span{color:var(--text-dim);font-weight:500;}
+.livebar .tube-card{background:#fff;}
+
+.guide{border-top:2px solid var(--line);padding:6px 22px 18px;}
+.guide > summary{cursor:pointer;font-weight:700;font-size:14px;color:var(--ink);padding:14px 0 8px;list-style:none;}
+.guide > summary::before{content:"▸ ";color:var(--coral);}
+.guide[open] > summary::before{content:"▾ ";}
+.gitem{border:1.5px solid var(--line);border-radius:8px;margin:8px 0;background:var(--bg);}
+.gitem > summary{cursor:pointer;font-weight:700;font-size:13.5px;padding:10px 14px;color:var(--ink);}
+.gitem .gbody{padding:0 14px 12px;font-size:13px;line-height:1.6;color:var(--text);}
+.gitem .gbody p{margin:6px 0;}
+.gitem table{border-collapse:collapse;width:100%;font-size:12.5px;margin:8px 0;}
+.gitem th,.gitem td{border:1.5px solid var(--line);padding:5px 8px;text-align:left;background:#fff;}
+.gitem th{background:var(--bg-2);}
+.sw{display:inline-block;width:11px;height:11px;border-radius:3px;border:1px solid rgba(0,0,0,.25);vertical-align:-1px;margin-right:4px;}
+
+footer.credit{padding:26px 24px 10px;color:var(--text-dim);font-size:12px;text-align:center;}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="inner">
+    <div class="brand-mark">
+      <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+        <rect x="1.5" y="1.5" width="33" height="33" rx="6" fill="#FFFDF8" stroke="#2B2418" stroke-width="2"/>
+        <path d="M10 10 L10 21 Q10 27 18 27 Q26 27 26 21 L26 10" stroke="#E4572E" stroke-width="2" fill="none"/>
+        <path d="M10 10 L26 10" stroke="#2B2418" stroke-width="2"/>
+        <circle cx="15" cy="18" r="1.6" fill="#0E8C82"/>
+        <circle cx="20" cy="21" r="1.6" fill="#F2A93B"/>
+        <circle cx="17" cy="23.5" r="1.6" fill="#6C3FA6"/>
+      </svg>
+      <div>
+        <h1>Identificador de <em>Enterobacterias</em></h1>
+        <div class="tagline">Anota las interpretaciones de tus pruebas bioquímicas y encuentra el microorganismo compatible, con ilustración de tubos incluida.</div>
+      </div>
+    </div>
+    <span class="pill" id="dbcount">51 microorganismos de referencia</span>
+  </div>
+</header>
+
+<div class="wrap">
+<main class="layout">
+
+  <section class="panel form-panel" id="formPanel"></section>
+
+  <section class="panel results" id="resultsPanel">
+    <div class="livebar">
+      <h2>Tus tubos <span>· se dibujan en vivo con lo que vas capturando</span></h2>
+      <div class="tubes" id="userTubes"></div>
+    </div>
+    <div class="empty" id="emptyState">
+      <svg width="64" height="64" viewBox="0 0 76 76" fill="none">
+        <circle cx="38" cy="38" r="34" stroke="#E7DFC9" stroke-width="2"/>
+        <circle cx="38" cy="38" r="25" stroke="#E7DFC9" stroke-width="1.4"/>
+        <circle cx="29" cy="31" r="2.6" fill="#0E8C82"/>
+        <circle cx="45" cy="28" r="2" fill="#F2A93B"/>
+        <circle cx="47" cy="44" r="2.4" fill="#6C3FA6"/>
+        <circle cx="31" cy="47" r="1.8" fill="#E4572E"/>
+        <circle cx="40" cy="38" r="1.6" fill="#0E8C82"/>
+      </svg>
+      <p><strong>Aún no hay identificación.</strong><br>Captura tus pruebas a la izquierda y pulsa «Analizar» para ver los microorganismos compatibles.</p>
+    </div>
+    <div id="liveResults" style="display:none;"></div>
+
+    <details class="guide">
+      <summary>Guía de lectura de las pruebas (fundamento, interpretación y limitaciones)</summary>
+
+      <details class="gitem"><summary>TSI · Agar Triple Azúcar Hierro</summary><div class="gbody">
+        <p><strong>Fundamento:</strong> contiene glucosa (0.1 %), lactosa y sacarosa (1 % cada una), rojo de fenol como indicador de pH, y sulfato ferroso con tiosulfato para revelar H₂S. Se siembra por picadura en el fondo y estría en el pico; incubar 24 h a 35 °C.</p>
+        <p><span class="sw" style="background:#E88B2C"></span>Sin inocular: anaranjado-rojizo · <span class="sw" style="background:#C8352C"></span>Alcalino (K): rojo · <span class="sw" style="background:#FBEA1C"></span>Ácido (A): amarillo · <span class="sw" style="background:#1B1613"></span>H₂S: negro</p>
+        <p><strong>A/A</strong> (pico y fondo amarillos): fermenta glucosa y lactosa y/o sacarosa. <strong>K/A</strong> (rojo/amarillo): solo fermenta glucosa. <strong>K/K</strong> (rojo/rojo): no fermentador. Burbujas o ruptura del agar = gas. Ennegrecimiento = H₂S.</p>
+        <p><strong>Limitación:</strong> en <em>Proteus</em> y <em>Citrobacter</em>, que fermentan sacarosa, el indicador de H₂S puede quedar enmascarado.</p>
+      </div></details>
+
+      <details class="gitem"><summary>LIA · Agar Hierro Lisina</summary><div class="gbody">
+        <p><strong>Fundamento:</strong> permite ver si el microorganismo descarboxila o desamina la lisina y si produce H₂S. La descarboxilación solo ocurre en medio ácido (pH &lt; 6), por eso primero debe fermentarse la glucosa: el medio solo sirve para fermentadores de glucosa. Se inocula por picadura hasta el fondo y estría en el pico, con el tapón flojo; 18–48 h a 35 °C.</p>
+        <p><span class="sw" style="background:#7E559E"></span><strong>LDC +:</strong> pico y fondo violeta · <span class="sw" style="background:#E9C31B"></span><strong>LDC −:</strong> pico violeta / fondo amarillo · <span class="sw" style="background:#F2566E"></span><strong>LDA +:</strong> pico rojizo / fondo amarillo (<em>Proteus</em>, <em>Providencia</em>, algunas <em>Morganella</em>) · <span class="sw" style="background:#1B1613"></span><strong>H₂S:</strong> ennegrecimiento en la profundidad.</p>
+        <table><tr><th>Género</th><th>Pico</th><th>Fondo</th><th>H₂S</th></tr>
+          <tr><td><em>Salmonella</em></td><td>Alcalino</td><td>Alcalino</td><td>+</td></tr>
+          <tr><td><em>Proteus</em></td><td>Rojo</td><td>Ácido</td><td>−</td></tr>
+          <tr><td><em>Providencia</em></td><td>Rojo</td><td>Ácido</td><td>−</td></tr>
+          <tr><td><em>Citrobacter</em></td><td>Alcalino</td><td>Ácido</td><td>+</td></tr>
+          <tr><td><em>Escherichia</em></td><td>Alcalino</td><td>Ácido o neutro</td><td>−</td></tr>
+          <tr><td><em>Shigella</em></td><td>Alcalino</td><td>Ácido</td><td>−</td></tr>
+          <tr><td><em>Klebsiella</em></td><td>Alcalino</td><td>Alcalino</td><td>—</td></tr></table>
+        <p>Alcalino = violeta. Tabla según la ficha técnica MDM Científica IS-24.</p>
+      </div></details>
+
+      <details class="gitem"><summary>SIM / MIO · Sulfuro, indol, movilidad (y ornitina)</summary><div class="gbody">
+        <p><strong>Fundamento:</strong> medio semisólido. La triptona permite detectar indol; el sulfato ferroso amónico con tiosulfato revela H₂S; la semisolidez deja ver la movilidad. El MIO añade ornitina para evaluar su descarboxilación. Se inocula con asa recta por el centro hasta 2/3 de profundidad; 18–24 h a 35 °C.</p>
+        <p><strong>Movilidad +:</strong> turbidez que se extiende más allá de la línea de siembra. <strong>Movilidad −:</strong> crecimiento solo sobre la línea. <strong>Indol:</strong> se agregan 3–4 gotas de reactivo de Kovacs; <span class="sw" style="background:#E3221C"></span>anillo rojo = positivo, <span class="sw" style="background:#E9C61D"></span>anillo amarillo = negativo. <strong>H₂S:</strong> ennegrecimiento a lo largo de la línea o en todo el medio. <strong>Ornitina (MIO):</strong> <span class="sw" style="background:#8E44E0"></span>púrpura = positiva; <span class="sw" style="background:#D8925F"></span>sin cambio de color = negativa.</p>
+        <p><strong>Limitaciones:</strong> en aerobios estrictos (crecen solo en superficie) la movilidad es difícil de observar. Bacterias productoras de melanina, como <em>M. morganii</em>, pueden dar un tono parduzco que no debe confundirse con el negro del H₂S.</p>
+      </div></details>
+
+      <details class="gitem"><summary>Citrato de Simmons</summary><div class="gbody">
+        <p><strong>Fundamento:</strong> el microorganismo debe usar citrato como única fuente de carbono (y fosfato de amonio como fuente de nitrógeno). Al alcalinizar el medio, el azul de bromotimol vira de <span class="sw" style="background:#10BF62"></span>verde a <span class="sw" style="background:#0B4CAE"></span>azul. Sembrar una sola estría en el pico; 24–48 h a 35 °C con tapa floja. También es positivo si hay desarrollo visible en la estría aunque no haya viraje.</p>
+        <p><strong>Suelen ser positivos:</strong> <em>Enterobacter</em>, <em>Klebsiella</em>, <em>Serratia</em>, <em>Citrobacter</em> y algunas <em>Salmonella</em>. <strong>Negativos:</strong> <em>Escherichia</em>, <em>Shigella</em>, <em>Yersinia</em>, <em>S.</em> Typhi y <em>S.</em> Paratyphi.</p>
+        <p><strong>Limitaciones:</strong> esterilizar el asa (o inocular esta prueba primero) para evitar arrastre de materia orgánica, e inóculos muy densos pueden dar falsos positivos.</p>
+      </div></details>
+
+      <details class="gitem"><summary>Urea · medio de Christensen</summary><div class="gbody">
+        <p><strong>Fundamento:</strong> la ureasa hidroliza la urea a CO₂ y amoníaco, lo que alcaliniza el medio y hace virar el rojo de fenol de <span class="sw" style="background:#F6E37F"></span>amarillo a <span class="sw" style="background:#F4749F"></span>rosado / rojo púrpura. Se inocula la superficie del pico sin picar el fondo (el fondo queda como control de color) y se lee a las 2, 4, 6 y 24 h, y luego a diario hasta 6 días.</p>
+        <p><strong>Hidrolizadores rápidos</strong> (<em>Proteus</em>): rojo en todo el medio en 1–2 h. <strong>Lentos</strong> (<em>Klebsiella</em>, <em>Enterobacter</em>, <em>Citrobacter</em>): al inicio solo el pico se pone rojo y con los días se extiende a todo el tubo. <strong>Negativo:</strong> conserva el amarillo original.</p>
+      </div></details>
+
+      <details class="gitem"><summary>Cepas de control de calidad (ATCC) del kit MDM</summary><div class="gbody">
+        <table><tr><th>Cepa</th><th>TSI</th><th>Gas</th><th>H₂S</th><th>Movilidad</th><th>Indol</th></tr>
+          <tr><td><em>E. coli</em> ATCC 25922</td><td>A/A</td><td>+</td><td>−</td><td>+</td><td>+</td></tr>
+          <tr><td><em>K. pneumoniae</em> ATCC 700603</td><td>A/A</td><td>+</td><td>−</td><td>−</td><td>−</td></tr>
+          <tr><td><em>P. mirabilis</em> ATCC 43071</td><td>K/A</td><td>+</td><td>+</td><td>+</td><td>−</td></tr>
+          <tr><td><em>S.</em> Typhimurium ATCC 14028</td><td>K/A</td><td>−</td><td>+</td><td>+</td><td>−</td></tr>
+          <tr><td><em>S.</em> Enteritidis ATCC 13076</td><td>K/A</td><td>+</td><td>+</td><td>+</td><td>−</td></tr>
+          <tr><td><em>S. flexneri</em> ATCC 12022</td><td>K/A</td><td>−</td><td>−</td><td>−</td><td>−</td></tr>
+          <tr><td><em>P. aeruginosa</em> ATCC 27853</td><td>K/K</td><td>−</td><td>−</td><td>—</td><td>—</td></tr></table>
+        <p>Fuente: ficha técnica MDM Científica IS-24 (2020), que se apoya en Koneman, <em>Diagnóstico Microbiológico</em>.</p>
+      </div></details>
+    </details>
+  </section>
+
+</main>
+</div>
+<footer class="credit">Herramienta de apoyo docente/orientativo. La identificación definitiva requiere confirmación por métodos estandarizados (API 20E, MALDI-TOF, secuenciación) y criterio del microbiólogo clínico.</footer>
+
+<script>
+const DB = [{"nombre": "Citrobacter freundii", "familia": "Enterobacterales (Enterobacteriaceae)", "gram": "Bacilo gram negativo", "tests": {"tsi": "A/A o K/A", "glucosa": "(+)", "sacarosa": "(-/+)", "lactosa": "(-/+)", "lisina_dc": "(-)", "lisina_da": "(-)", "urea": "(-/+)", "citrato": "(+)", "movilidad": "(+)", "indol": "(-)", "oxidasa": "(-)", "h2s": "(+)", "gas": "(+)", "rm": "(+)", "vp": "(-)", "fad": "(-)", "ornitina_dc": "(-/+)", "betagalactosidasa": "(+)", "malonato": "(-)", "nitrato": "(+)", "gelatina": "(-)"}, "medios": ["Agar MacConkey", "Agar EMB (eosina-azul de metileno)", "Agar sangre de carnero al 5%", "Agar TSI/Kligler", "Agar citrato de Simmons"], "clinica": "Coloniza el tracto intestinal como comensal oportunista. Causa infecciones urinarias, de vías biliares, respiratorias y bacteriemia asociadas a catéteres o cirugía, sobre todo en pacientes hospitalizados o inmunocomprometidos. Algunas cepas producen AmpC cromosómica inducible, por lo que pueden desarrollar resistencia a cefalosporinas de amplio espectro durante el tratamiento.", "tinciones": ["Tinción de cápsula (para diferenciar de Klebsiella)", "Tinción de flagelos"], "pruebas_extra": ["Prueba de ADH/LDC en API 20E", "Antibiograma con detección de AmpC inducible", "PCR de genes de resistencia (blaCMY)"], "del_pdf": true, "id": 1}, {"nombre": "Citrobacter koseri", "familia": "Enterobacterales (Enterobacteriaceae)", "gram": "Bacilo gram negativo", "tests": {"tsi": "K/A", "glucosa": "(+)", "sacarosa": "(-)", "lactosa": "(-)", "lisina_dc": "(-)", "lisina_da": "(-)", "urea": "(-/+)", "citrato": "(+)", "movilidad": "(+)", "indol": "(+)", "oxidasa": "(-)", "h2s": "(-)", "gas": "(+)", "rm": "(+)", "vp": "(-)", "fad": "(-)", "ornitina_dc": "(+)", "betagalactosidasa": "(+)", "malonato": "(+)", "nitrato": "(+)", "gelatina": "(-)"}, "medios": ["Agar MacConkey", "Agar EMB (eosina-azul de metileno)", "Agar sangre de carnero al 5%", "Agar TSI/Kligler", "Agar citrato de Simmons"], "clinica": "Menos frecuente que C. freundii, pero clínicamente relevante por su capacidad de causar meningitis neonatal con formación de abscesos cerebrales, además de infecciones urinarias y bacteriemia. El indol positivo lo distingue de C. freundii.", "tinciones": ["Tinción de flagelos"], "pruebas_extra": ["Hemocultivo y cultivo de LCR en sospecha de meningitis neonatal", "Antibiograma"], "del_pdf": true, "id": 2}, {"nombre": "Enterobacter aerogenes (reclasificado como Klebsiella aerogenes)", "familia": "Enterobacterales (Enterobacteriaceae)", "gram": "Bacilo gram negativo", "tests": {"tsi": "A/A o K/A", "glucosa": "(+)", "sacarosa": "(+)", "lactosa": "(+)", "lisina_dc": "(+)", "lisina_da": "(-)", "urea": "(-)", "citrato": "(+)", "movilidad": "(+)", "indol": "(-)", "oxidasa": "(-)", "h2s": "(-)", "gas": "(+)", "rm": "(-)", "vp": "(+)", "fad": "(-)", "ornitina_dc": "(+)", "betagalactosidasa": "(+)", "malonato": "(+)", "nitrato": "(+)", "gelatina": "(-)"}, "medios": ["Agar MacConkey", "Agar EMB (eosina-azul de metileno)", "Agar sangre de carnero al 5%", "Agar TSI/Kligler", "Agar citrato de Simmons"], "clinica": "Patógeno oportunista asociado a infecciones nosocomiales: neumonía, infección urinaria, de heridas quirúrgicas y bacteriemia, frecuentemente en brotes hospitalarios por contaminación de dispositivos. La taxonomía actual lo reclasifica dentro del género Klebsiella, aunque muchos laboratorios clínicos siguen usando el nombre histórico.", "tinciones": ["Tinción de cápsula"], "pruebas_extra": ["Antibiograma (vigilar AmpC/carbapenemasas)", "API 20E o sistemas automatizados (VITEK)"], "del_pdf": true, "id": 3}, {"nombre": "Enterobacter cloacae", "familia": "Enterobacterales (Enterobacteriaceae)", "gram": "Bacilo gram negativo", "tests": {"tsi": "A/A o K/A", "glucosa": "(+)", "sacarosa": "(+)", "lactosa": "(+)", "lisina_dc": "(-)", "lisina_da": "(-)", "urea": "(-/+)", "citrato": "(+)", "movilidad": "(+)", "indol": "(-)", "oxidasa": "(-)", "h2s": "(+)", "gas": "(+)", "rm": "(-)", "vp": "(+)", "fad": "(-)", "ornitina_dc": "(+)", "betagalactosidasa": "(+)", "malonato": "(+)", "nitrato": "(+)", "gelatina": "(-)"}, "medios": ["Agar MacConkey", "Agar EMB (eosina-azul de metileno)", "Agar sangre de carnero al 5%", "Agar TSI/Kligler", "Agar citrato de Simmons"], "clinica": "Una de las especies de Enterobacter más aisladas en infecciones nosocomiales: neumonía asociada a ventilador, infección urinaria, de heridas y bacteriemia. Posee AmpC cromosómica inducible que puede seleccionar resistencia a cefalosporinas de tercera generación durante el tratamiento, lo que obliga a repetir el antibiograma en infecciones prolongadas.", "tinciones": ["Tinción de cápsula"], "pruebas_extra": ["Antibiograma seriado", "Detección fenotípica de AmpC/BLEE"], "del_pdf": true, "id": 4}, {"nombre": "Escherichia coli", "familia": "Enterobacterales (Enterobacteriaceae)", "gram": "Bacilo gram negativo", "tests": {"tsi": "A/A o K/A", "glucosa": "(+)", "sacarosa": "(+)", "lactosa": "(+)", "lisina_dc": "(+)", "lisina_da": "(-)", "urea": "(-)", "citrato": "(-)", "movilidad": "(+)", "indol": "(+)", "oxidasa": "(-)", "h2s": "(-)", "gas": "(+)", "rm": "(+)", "vp": "(-)", "fad": "(-)", "ornitina_dc": "(-/+)", "betagalactosidasa": "(+)", "malonato": "(-)", "nitrato": "(+)", "gelatina": "(-)"}, "medios": ["Agar MacConkey", "Agar EMB (eosina-azul de metileno)", "Agar sangre de carnero al 5%", "Agar TSI/Kligler", "Agar EMB (brillo verde metálico típico)", "Agar sorbitol-MacConkey (para O157:H7)"], "clinica": "Comensal habitual del colon, pero también el patógeno gramnegativo más frecuente en clínica: causa la mayoría de las infecciones urinarias no complicadas, y cepas patógenas específicas (ETEC, EPEC, EHEC/O157:H7, EIEC, EAEC) producen diarrea de distinta gravedad, incluyendo el síndrome urémico hemolítico asociado a la toxina Shiga de O157:H7. También causa sepsis neonatal y meningitis (cepas K1).", "tinciones": ["Tinción de flagelos", "Microscopía electrónica para fimbrias/pili"], "pruebas_extra": ["Serotipificación O:H", "Detección de toxina Shiga (ELISA/PCR)", "Perfil de virulencia por PCR multiplex"], "del_pdf": true, "id": 5}, {"nombre": "Klebsiella oxytoca", "familia": "Enterobacterales (Enterobacteriaceae)", "gram": "Bacilo gram negativo, a menudo encapsulado", "tests": {"tsi": "A/A o K/A", "glucosa": "(+)", "sacarosa": "(+)", "lactosa": "(+)", "lisina_dc": "(+)", "lisina_da": "(-)", "urea": "(+)", "citrato": "(+)", "movilidad": "(-)", "indol": "(+)", "oxidasa": "(-)", "h2s": "(-)", "gas": "(+)", "rm": "(-/+)", "vp": "(+)", "fad": "(-)", "ornitina_dc": "(-)", "betagalactosidasa": "(+)", "malonato": "(+)", "nitrato": "(+)", "gelatina": "(-)"}, "medios": ["Agar MacConkey", "Agar EMB (eosina-azul de metileno)", "Agar sangre de carnero al 5%", "Agar TSI/Kligler", "Agar citrato de Simmons"], "clinica": "Patógeno oportunista de infecciones urinarias, respiratorias y bacteriemia asociadas a dispositivos; se distingue de K. pneumoniae por ser indol positivo. Se ha asociado también a colitis hemorrágica asociada a antibióticos por producción de citotoxina.", "tinciones": ["Tinción de cápsula (prominente en el género)"], "pruebas_extra": ["Antibiograma (vigilar BLEE/carbapenemasas)", "Detección de citotoxina en colitis asociada a antibióticos"], "del_pdf": true, "id": 6}, {"nombre": "Klebsiella pneumoniae", "familia": "Enterobacterales (Enterobacteriaceae)", "gram": "Bacilo gram negativo, con cápsula prominente", "tests": {"tsi": "A/A o K/A", "glucosa": "(+)", "sacarosa": "(+)", "lactosa": "(+)", "lisina_dc": "(+)", "lisina_da": "(-)", "urea": "(+)", "citrato": "(+)", "movilidad": "(-)", "indol": "(-)", "oxidasa": "(-)", "h2s": "(-)", "gas": "(+)", "rm": "(-)", "vp": "(+)", "fad": "(-)", "ornitina_dc": "(-)", "betagalactosidasa": "(+)", "malonato": "(+)", "nitrato": "(+)", "gelatina": "(-)"}, "medios": ["Agar MacConkey", "Agar EMB (eosina-azul de metileno)", "Agar sangre de carnero al 5%", "Agar TSI/Kligler", "Agar citrato de Simmons"], "clinica": "Causa neumonía lobar necrosante grave (esputo en 'jalea de grosella'), infecciones urinarias, de vías biliares y bacteriemia, con especial relevancia en pacientes diabéticos y alcohólicos. Es una de las enterobacterias con mayor tasa de resistencia por BLEE y carbapenemasas (KPC) a nivel hospitalario, y su cápsula gruesa es un factor de virulencia clave.", "tinciones": ["Tinción de cápsula (halo claro alrededor del bacilo)"], "pruebas_extra": ["Antibiograma con detección de carbapenemasas (KPC, NDM)", "Tipificación de cápsula (serotipo K)"], "del_pdf": true, "id": 7}, {"nombre": "Klebsiella pneumoniae subsp. ozaenae", "familia": "Enterobacterales (Enterobacteriaceae)", "gram": "Bacilo gram negativo", "tests": {"tsi": "A/A o K/A", "glucosa": "(+)", "sacarosa": "(-/+)", "lactosa": "(-/+)", "lisina_dc": "(-/+)", "lisina_da": "(-)", "urea": "(-)", "citrato": "(-/+)", "movilidad": "(-)", "indol": "(-)", "oxidasa": "(-)", "h2s": "(-)", "gas": "(-/+)", "rm": "(+)", "vp": "(-)", "fad": "(-)", "ornitina_dc": "(-)", "betagalactosidasa": "(-/+)", "malonato": "(-)", "nitrato": "(+)", "gelatina": "(-)"}, "medios": ["Agar MacConkey", "Agar EMB (eosina-azul de metileno)", "Agar sangre de carnero al 5%", "Agar TSI/Kligler", "Agar citrato de Simmons"], "clinica": "Subespecie asociada a rinitis atrófica crónica ('ocena'), con secreción nasal fétida y atrofia de la mucosa y cornetes nasales; es una causa poco común mas característica de infección crónica de vías respiratorias altas.", "tinciones": ["Tinción de cápsula"], "pruebas_extra": ["Rinoscopia y cultivo de secreción nasal"], "del_pdf": true, "id": 8}, {"nombre": "Klebsiella pneumoniae subsp. rhinoscleromatis", "familia": "Enterobacterales (Enterobacteriaceae)", "gram": "Bacilo gram negativo, intracelular en células de Mikulicz", "tests": {"tsi": "K/A", "glucosa": "(+)", "sacarosa": "(+)", "lactosa": "(-)", "lisina_dc": "(-)", "lisina_da": "(-)", "urea": "(-)", "citrato": "(-)", "movilidad": "(-)", "indol": "(-)", "oxidasa": "(-)", "h2s": "(-)", "gas": "(-)", "rm": "(+)", "vp": "(-)", "fad": "(-)", "ornitina_dc": "(-)", "betagalactosidasa": "(-)", "malonato": "(+)", "nitrato": "(+)", "gelatina": "(-)"}, "medios": ["Agar MacConkey", "Agar EMB (eosina-azul de metileno)", "Agar sangre de carnero al 5%", "Agar TSI/Kligler", "Agar citrato de Simmons"], "clinica": "Causa el rinoescleroma, una infección granulomatosa crónica y desfigurante de nariz y vías respiratorias altas, endémica en algunas regiones de Latinoamérica, África y Asia. Histológicamente se identifica dentro de células espumosas (células de Mikulicz).", "tinciones": ["Tinción de Warthin-Starry o Giemsa (bacilos intracelulares en células de Mikulicz)"], "pruebas_extra": ["Biopsia con estudio histopatológico"], "del_pdf": true, "id": 9}, {"nombre": "Morganella morganii", "familia": "Enterobacterales (Enterobacteriaceae, tribu Proteeae)", "gram": "Bacilo gram negativo", "tests": {"tsi": "K/A", "glucosa": "(+)", "sacarosa": "(-)", "lactosa": "(-)", "lisina_dc": "(-)", "lisina_da": "(+)", "urea": "(+)", "citrato": "(-)", "movilidad": "(+)", "indol": "(+)", "oxidasa": "(-)", "h2s": "(-)", "gas": "(+)", "rm": "(+)", "vp": "(-)", "fad": "(+)", "ornitina_dc": "(+)", "betagalactosidasa": "(-)", "malonato": "(-)", "nitrato": "(+)", "gelatina": "(-)"}, "medios": ["Agar MacConkey", "Agar EMB (eosina-azul de metileno)", "Agar sangre de carnero al 5%", "Agar TSI/Kligler", "Agar sangre (enjambre limitado, menor que Proteus)"], "clinica": "Causa infecciones urinarias (frecuentemente asociadas a sondas y cálculos por su ureasa), de heridas y bacteriemia, sobre todo en pacientes hospitalizados o con comorbilidades. Comparte con Proteus y Providencia la desaminación de la lisina (reacción roja en el pico de flauta del LIA) y resistencia intrínseca a polimixinas.", "tinciones": ["Tinción de flagelos"], "pruebas_extra": ["Prueba de ureasa rápida", "Antibiograma (resistencia intrínseca a colistina)"], "del_pdf": true, "id": 10}, {"nombre": "Proteus mirabilis", "familia": "Enterobacterales (Enterobacteriaceae, tribu Proteeae)", "gram": "Bacilo gram negativo, muy móvil", "tests": {"tsi": "K/A", "glucosa": "(+)", "sacarosa": "(-)", "lactosa": "(-)", "lisina_dc": "(-)", "lisina_da": "(+)", "urea": "(+)", "citrato": "(+)", "movilidad": "(+)", "indol": "(-)", "oxidasa": "(-)", "h2s": "(+)", "gas": "(+)", "rm": "(+)", "vp": "(-/+)", "fad": "(+)", "ornitina_dc": "(+)", "betagalactosidasa": "(-)", "malonato": "(-)", "nitrato": "(+)", "gelatina": "(+)"}, "medios": ["Agar MacConkey", "Agar EMB (eosina-azul de metileno)", "Agar sangre de carnero al 5%", "Agar TSI/Kligler", "Agar sangre (fenómeno de enjambre / 'swarming')"], "clinica": "Causa frecuente de infecciones urinarias, especialmente asociadas a litiasis renal por cálculos de estruvita (su ureasa alcaliniza la orina). También produce infecciones de heridas y bacteriemia. Su motilidad intensa genera el característico patrón de 'enjambre' en agar sangre no selectivo.", "tinciones": ["Tinción de flagelos (perítricos, muy numerosos)"], "pruebas_extra": ["Prueba de ureasa (fuertemente positiva y rápida)", "Examen de orina para cristales de estruvita"], "del_pdf": true, "id": 11}, {"nombre": "Proteus penneri", "familia": "Enterobacterales (Enterobacteriaceae, tribu Proteeae)", "gram": "Bacilo gram negativo, móvil", "tests": {"tsi": "K/A", "glucosa": "(+)", "sacarosa": "(+)", "lactosa": "(-)", "lisina_dc": "(-)", "lisina_da": "(+)", "urea": "(+)", "citrato": "(-)", "movilidad": "(+)", "indol": "(-)", "oxidasa": "(-)", "h2s": "(-/+)", "gas": "(-/+)", "rm": "(+)", "vp": "(-)", "fad": "(+)", "ornitina_dc": "(-)", "betagalactosidasa": "(-)", "malonato": "(-)", "nitrato": "(+)", "gelatina": "(+)"}, "medios": ["Agar MacConkey", "Agar EMB (eosina-azul de metileno)", "Agar sangre de carnero al 5%", "Agar TSI/Kligler", "Agar sangre (enjambre)"], "clinica": "Menos frecuente que P. mirabilis; se aísla en infecciones urinarias y de heridas, principalmente en pacientes hospitalizados. Indol negativo, lo que ayuda a diferenciarlo de P. vulgaris.", "tinciones": ["Tinción de flagelos"], "pruebas_extra": ["Prueba de ureasa", "Antibiograma"], "del_pdf": true, "id": 12}, {"nombre": "Proteus vulgaris", "familia": "Enterobacterales (Enterobacteriaceae, tribu Proteeae)", "gram": "Bacilo gram negativo, móvil", "tests": {"tsi": "K/A", "glucosa": "(+)", "sacarosa": "(+)", "lactosa": "(-)", "lisina_dc": "(-)", "lisina_da": "(+)", "urea": "(+)", "citrato": "(-/+)", "movilidad": "(+)", "indol": "(+)", "oxidasa": "(-)", "h2s": "(+)", "gas": "(+)", "rm": "(+)", "vp": "(-)", "fad": "(+)", "ornitina_dc": "(+)", "betagalactosidasa": "(-)", "malonato": "(-)", "nitrato": "(+)", "gelatina": "(+)"}, "medios": ["Agar MacConkey", "Agar EMB (eosina-azul de metileno)", "Agar sangre de carnero al 5%", "Agar TSI/Kligler", "Agar sangre (enjambre)"], "clinica": "Causa infecciones urinarias, de heridas y oportunistas en pacientes hospitalizados. Es indol positivo (a diferencia de P. mirabilis), lo que sirve para diferenciarlo dentro del género. Comparte la ureasa potente característica de la tribu Proteeae.", "tinciones": ["Tinción de flagelos"], "pruebas_extra": ["Prueba de ureasa", "Prueba de indol para diferenciar de P. mirabilis"], "del_pdf": true, "id": 13}, {"nombre": "Providencia stuartii", "familia": "Enterobacterales (Enterobacteriaceae, tribu Proteeae)", "gram": "Bacilo gram negativo", "tests": {"tsi": "K/A", "glucosa": "(+)", "sacarosa": "(-/+)", "lactosa": "(-)", "lisina_dc": "(-)", "lisina_da": "(+)", "urea": "(-/+)", "citrato": "(+)", "movilidad": "(-/+)", "indol": "(+)", "oxidasa": "(-)", "h2s": "(-)", "gas": "(-)", "rm": "(+)", "vp": "(-)", "fad": "(+)", "ornitina_dc": "(-)", "betagalactosidasa": "(-)", "malonato": "(-)", "nitrato": "(+)", "gelatina": "(-)"}, "medios": ["Agar MacConkey", "Agar EMB (eosina-azul de metileno)", "Agar sangre de carnero al 5%", "Agar TSI/Kligler", "Agar sangre"], "clinica": "Se asocia sobre todo a infecciones urinarias en pacientes con sondaje vesical prolongado (colonización de catéteres) y a brotes nosocomiales. Presenta resistencia intrínseca a polimixinas y con frecuencia a múltiples antibióticos.", "tinciones": ["Tinción de flagelos"], "pruebas_extra": ["Prueba de ureasa", "Antibiograma con perfil de multirresistencia"], "del_pdf": true, "id": 14}, {"nombre": "Salmonella enterica (no tifoidea)", "familia": "Enterobacterales (Enterobacteriaceae)", "gram": "Bacilo gram negativo", "tests": {"tsi": "K/A", "glucosa": "(+)", "sacarosa": "(-)", "lactosa": "(-)", "lisina_dc": "(+)", "lisina_da": "(-)", "urea": "(-)", "citrato": "(+)", "movilidad": "(+)", "indol": "(-)", "oxidasa": "(-)", "h2s": "(+)", "gas": "(+)", "rm": "(+)", "vp": "(-)", "fad": "(-)", "ornitina_dc": "(+)", "betagalactosidasa": "(-)", "malonato": "(-)", "nitrato": "(+)", "gelatina": "(-)"}, "medios": ["Agar SS (Salmonella-Shigella)", "Agar XLD", "Agar sulfito de bismuto", "Caldo de enriquecimiento de selenito o tetrationato"], "clinica": "Las serovariedades no tifoideas (p. ej. Enteritidis, Typhimurium) causan gastroenteritis aguda autolimitada por consumo de alimentos contaminados (huevo, pollo), con diarrea, fiebre y dolor abdominal; en inmunocomprometidos o extremos de la vida puede diseminarse a bacteriemia y focos extraintestinales.", "tinciones": ["Tinción de flagelos"], "pruebas_extra": ["Serotipificación de Kauffmann-White (antígenos O, H, Vi)", "Coprocultivo en medios selectivos"], "del_pdf": true, "id": 15}, {"nombre": "Salmonella enterica serovar Choleraesuis", "familia": "Enterobacterales (Enterobacteriaceae)", "gram": "Bacilo gram negativo", "tests": {"tsi": "K/A", "glucosa": "(+)", "sacarosa": "(-)", "lactosa": "(-)", "lisina_dc": "(+)", "lisina_da": "(-)", "urea": "(-)", "citrato": "(-/+)", "movilidad": "(+)", "indol": "(-)", "oxidasa": "(-)", "h2s": "(-/+)", "gas": "(+)", "rm": "(+)", "vp": "(-)", "fad": "(-)", "ornitina_dc": "(+)", "betagalactosidasa": "(-)", "malonato": "(-)", "nitrato": "(+)", "gelatina": "(-)"}, "medios": ["Agar SS", "Agar XLD", "Agar sulfito de bismuto"], "clinica": "Serovariedad con marcada tendencia a la invasión sistémica: produce bacteriemia y focos metastásicos (osteomielitis, abscesos) con más frecuencia que otras salmonelas no tifoideas, y con menor frecuencia diarrea; el reservorio principal es el cerdo.", "tinciones": ["Tinción de flagelos"], "pruebas_extra": ["Hemocultivo", "Serotipificación de Kauffmann-White"], "del_pdf": true, "id": 16}, {"nombre": "Salmonella enterica serovar Paratyphi", "familia": "Enterobacterales (Enterobacteriaceae)", "gram": "Bacilo gram negativo", "tests": {"tsi": "K/A", "glucosa": "(+)", "sacarosa": "(-)", "lactosa": "(-)", "lisina_dc": "(-)", "lisina_da": "(-)", "urea": "(-)", "citrato": "(-)", "movilidad": "(+)", "indol": "(-)", "oxidasa": "(-)", "h2s": "(-/+)", "gas": "(+)", "rm": "(+)", "vp": "(-)", "fad": "(-)", "ornitina_dc": "(+)", "betagalactosidasa": "(-)", "malonato": "(-)", "nitrato": "(+)", "gelatina": "(-)"}, "medios": ["Agar SS", "Agar XLD", "Agar sulfito de bismuto"], "clinica": "Causa fiebre paratifoidea, un cuadro similar a la fiebre tifoidea pero generalmente más leve: fiebre prolongada, dolor abdominal y afectación del sistema reticuloendotelial, transmitida por vía fecal-oral desde agua o alimentos contaminados.", "tinciones": ["Tinción de flagelos"], "pruebas_extra": ["Hemocultivo (fase temprana) y coprocultivo (fase tardía)", "Serotipificación", "Prueba de Widal (limitada, poco específica)"], "del_pdf": true, "id": 17}, {"nombre": "Salmonella enterica serovar Typhi", "familia": "Enterobacterales (Enterobacteriaceae)", "gram": "Bacilo gram negativo, con antígeno de virulencia Vi", "tests": {"tsi": "K/A", "glucosa": "(+)", "sacarosa": "(-)", "lactosa": "(-)", "lisina_dc": "(-)", "lisina_da": "(-)", "urea": "(-)", "citrato": "(-)", "movilidad": "(+)", "indol": "(-)", "oxidasa": "(-)", "h2s": "(+)", "gas": "(-)", "rm": "(+)", "vp": "(-)", "fad": "(-)", "ornitina_dc": "(-)", "betagalactosidasa": "(-)", "malonato": "(-)", "nitrato": "(+)", "gelatina": "(-)"}, "medios": ["Agar SS", "Agar XLD", "Agar sulfito de bismuto (colonias negras por H2S)"], "clinica": "Agente de la fiebre tifoidea: fiebre progresiva, cefalea, dolor abdominal, bradicardia relativa, roséola y riesgo de complicaciones graves como perforación intestinal y hemorragia digestiva. Se transmite exclusivamente entre humanos por vía fecal-oral (agua/alimentos contaminados) y puede generar portadores crónicos en vesícula biliar.", "tinciones": ["Tinción de flagelos", "Detección de antígeno Vi (cápsula)"], "pruebas_extra": ["Hemocultivo en primera semana, coprocultivo/urocultivo después", "Prueba de Widal (apoyo, poco específica)", "Serotipificación con antisuero Vi"], "del_pdf": true, "id": 18}, {"nombre": "Serratia marcescens", "familia": "Enterobacterales (Enterobacteriaceae)", "gram": "Bacilo gram negativo", "tests": {"tsi": "K/A", "glucosa": "(+)", "sacarosa": "(+)", "lactosa": "(-)", "lisina_dc": "(+)", "lisina_da": "(-)", "urea": "(-)", "citrato": "(+)", "movilidad": "(+)", "indol": "(-)", "oxidasa": "(-)", "h2s": "(-)", "gas": "(+)", "rm": "(-/+)", "vp": "(+)", "fad": "(-)", "ornitina_dc": "(+)", "betagalactosidasa": "(+)", "malonato": "(-)", "nitrato": "(+)", "gelatina": "(+)"}, "medios": ["Agar MacConkey", "Agar EMB (eosina-azul de metileno)", "Agar sangre de carnero al 5%", "Agar TSI/Kligler", "Agar DNasa (para prodigiosina/pigmento rojo)"], "clinica": "Patógeno oportunista nosocomial clásico: neumonía asociada a ventilador, infección urinaria, bacteriemia asociada a catéteres y brotes por contaminación de soluciones o equipo médico. Algunas cepas producen el pigmento rojo prodigiosina, útil para su identificación macroscópica. Presenta resistencia intrínseca a colistina y con frecuencia AmpC.", "tinciones": ["Tinción de flagelos"], "pruebas_extra": ["Prueba de DNasa (positiva)", "Antibiograma (resistencia intrínseca a polimixinas)"], "del_pdf": true, "id": 19}, {"nombre": "Shigella dysenteriae", "familia": "Enterobacterales (Enterobacteriaceae)", "gram": "Bacilo gram negativo, inmóvil", "tests": {"tsi": "K/A", "glucosa": "(+)", "sacarosa": "(-)", "lactosa": "(-)", "lisina_dc": "(-)", "lisina_da": "(-)", "urea": "(-)", "citrato": "(-)", "movilidad": "(-)", "indol": "(-/+)", "oxidasa": "(-)", "h2s": "(-)", "gas": "(-)", "rm": "(+)", "vp": "(-)", "fad": "(-)", "ornitina_dc": "(-)", "betagalactosidasa": "(-)", "malonato": "(-)", "nitrato": "(+)", "gelatina": "(-)"}, "medios": ["Agar SS", "Agar XLD", "Agar MacConkey"], "clinica": "Causa la disentería bacilar más grave del género, con diarrea mucosanguinolenta, fiebre y dolor abdominal intenso por invasión de la mucosa colónica; el serotipo 1 produce toxina Shiga y puede complicarse con síndrome urémico hemolítico. Muy baja dosis infectiva y transmisión fecal-oral directa.", "tinciones": ["Tinción de flagelos (negativa, confirma inmovilidad)"], "pruebas_extra": ["Serotipificación (grupo A)", "Detección de toxina Shiga"], "del_pdf": true, "id": 20}, {"nombre": "Shigella flexneri", "familia": "Enterobacterales (Enterobacteriaceae)", "gram": "Bacilo gram negativo, inmóvil", "tests": {"tsi": "K/A", "glucosa": "(+)", "sacarosa": "(-)", "lactosa": "(-)", "lisina_dc": "(-)", "lisina_da": "(-)", "urea": "(-)", "citrato": "(-)", "movilidad": "(-)", "indol": "(-/+)", "oxidasa": "(-)", "h2s": "(-)", "gas": "(-)", "rm": "(+)", "vp": "(-)", "fad": "(-)", "ornitina_dc": "(-)", "betagalactosidasa": "(-)", "malonato": "(-)", "nitrato": "(+)", "gelatina": "(-)"}, "medios": ["Agar SS", "Agar XLD", "Agar MacConkey"], "clinica": "Causa más frecuente de shigelosis en países en desarrollo: diarrea invasiva con moco y sangre, fiebre y tenesmo, transmitida por vía fecal-oral con dosis infectiva muy baja.", "tinciones": [], "pruebas_extra": ["Serotipificación (grupo B)"], "del_pdf": true, "id": 21}, {"nombre": "Shigella boydii", "familia": "Enterobacterales (Enterobacteriaceae)", "gram": "Bacilo gram negativo, inmóvil", "tests": {"tsi": "K/A", "glucosa": "(+)", "sacarosa": "(-)", "lactosa": "(-)", "lisina_dc": "(-)", "lisina_da": "(-)", "urea": "(-)", "citrato": "(-)", "movilidad": "(-)", "indol": "(-/+)", "oxidasa": "(-)", "h2s": "(-)", "gas": "(-)", "rm": "(+)", "vp": "(-)", "fad": "(-)", "ornitina_dc": "(-)", "betagalactosidasa": "(-)", "malonato": "(-)", "nitrato": "(+)", "gelatina": "(-)"}, "medios": ["Agar SS", "Agar XLD", "Agar MacConkey"], "clinica": "Causa disentería bacilar, más prevalente en el subcontinente indio; cuadro clínico similar al resto del género aunque generalmente algo menos grave que S. dysenteriae.", "tinciones": [], "pruebas_extra": ["Serotipificación (grupo C)"], "del_pdf": true, "id": 22}, {"nombre": "Shigella sonnei", "familia": "Enterobacterales (Enterobacteriaceae)", "gram": "Bacilo gram negativo, inmóvil", "tests": {"tsi": "K/A", "glucosa": "(+)", "sacarosa": "(-)", "lactosa": "(-)", "lisina_dc": "(-)", "lisina_da": "(-)", "urea": "(-)", "citrato": "(-)", "movilidad": "(-)", "indol": "(-)", "oxidasa": "(-)", "h2s": "(-)", "gas": "(-)", "rm": "(+)", "vp": "(-)", "fad": "(-)", "ornitina_dc": "(-)", "betagalactosidasa": "(-/+)", "malonato": "(-)", "nitrato": "(+)", "gelatina": "(-)"}, "medios": ["Agar SS", "Agar XLD", "Agar MacConkey"], "clinica": "Especie predominante en países industrializados; causa diarrea generalmente más leve y autolimitada que las otras especies de Shigella, aunque sigue siendo muy transmisible por su baja dosis infectiva.", "tinciones": [], "pruebas_extra": ["Serotipificación (grupo D)"], "del_pdf": true, "id": 23}, {"nombre": "Yersinia enterocolitica", "familia": "Enterobacterales (Enterobacteriaceae)", "gram": "Bacilo gram negativo, cocobacilar", "tests": {"tsi": "K/A", "glucosa": "(+)", "sacarosa": "(+)", "lactosa": "(-)", "lisina_dc": "(-)", "lisina_da": "(-)", "urea": "(-/+)", "citrato": "(-)", "movilidad": "(-/+)", "indol": "(-/+)", "oxidasa": "(-)", "h2s": "(-)", "gas": "(-)", "rm": "(+)", "vp": "(-)", "fad": "(-)", "ornitina_dc": "(+)", "betagalactosidasa": "(+)", "malonato": "(-)", "nitrato": "(+)", "gelatina": "(-)"}, "medios": ["Agar MacConkey", "Agar EMB (eosina-azul de metileno)", "Agar sangre de carnero al 5%", "Agar TSI/Kligler", "Agar CIN (cefsulodina-irgasán-novobiocina)"], "clinica": "Causa enterocolitis aguda (diarrea, fiebre, dolor abdominal) que en adolescentes puede simular apendicitis aguda por adenitis mesentérica ('pseudoapendicitis'); se transmite por alimentos (cerdo poco cocido) y agua contaminada, y puede complicarse con artritis reactiva o eritema nodoso postinfeccioso.", "tinciones": ["Tinción bipolar de Wayson o azul de metileno (menos marcada que en Y. pestis)"], "pruebas_extra": ["Cultivo en frío ('cold enrichment') a 4°C", "Serotipificación (O:3, O:9 más comunes)"], "del_pdf": true, "id": 24}, {"nombre": "Yersinia pestis", "familia": "Enterobacterales (Enterobacteriaceae)", "gram": "Bacilo gram negativo, cocobacilar, inmóvil", "tests": {"tsi": "K/A", "glucosa": "(+)", "sacarosa": "(-)", "lactosa": "(-)", "lisina_dc": "(-)", "lisina_da": "(-)", "urea": "(-)", "citrato": "(-)", "movilidad": "(-)", "indol": "(-)", "oxidasa": "(-)", "h2s": "(-)", "gas": "(-)", "rm": "(+)", "vp": "(-)", "fad": "(-)", "ornitina_dc": "(-)", "betagalactosidasa": "(-/+)", "malonato": "(-)", "nitrato": "(+)", "gelatina": "(-)"}, "medios": ["Agar sangre", "Agar MacConkey (crecimiento lento)", "Agar CIN"], "clinica": "Agente de la peste, transmitida por la picadura de pulgas de roedores infectados. Causa peste bubónica (adenopatías dolorosas), que puede progresar a peste septicémica o neumónica (esta última transmisible de persona a persona por vía respiratoria y potencialmente letal en horas si no se trata). Es de notificación obligatoria y potencial agente de bioterrorismo.", "tinciones": ["Tinción bipolar de Wayson o Giemsa ('imperdible' o 'safety pin')"], "pruebas_extra": ["Serología/PCR específica", "Notificación epidemiológica obligatoria", "Manejo en nivel de bioseguridad adecuado"], "del_pdf": true, "id": 25}, {"nombre": "Yersinia pseudotuberculosis", "familia": "Enterobacterales (Enterobacteriaceae)", "gram": "Bacilo gram negativo, cocobacilar", "tests": {"tsi": "K/A", "glucosa": "(+)", "sacarosa": "(-)", "lactosa": "(-)", "lisina_dc": "(-)", "lisina_da": "(-)", "urea": "(+)", "citrato": "(-)", "movilidad": "(+)", "indol": "(-)", "oxidasa": "(-)", "h2s": "(-)", "gas": "(-)", "rm": "(+)", "vp": "(-)", "fad": "(-)", "ornitina_dc": "(-)", "betagalactosidasa": "(+)", "malonato": "(-)", "nitrato": "(+)", "gelatina": "(-)"}, "medios": ["Agar MacConkey", "Agar EMB (eosina-azul de metileno)", "Agar sangre de carnero al 5%", "Agar TSI/Kligler", "Agar CIN"], "clinica": "Causa adenitis mesentérica y un cuadro seudoapendicular similar a Y. enterocolitica, además de manifestaciones sistémicas ocasionales (síndrome de Far East scarlet-like fever). La transmisión es por alimentos o agua contaminados con heces de roedores o aves.", "tinciones": ["Tinción bipolar de Wayson"], "pruebas_extra": ["Cultivo en frío", "Serotipificación"], "del_pdf": true, "id": 26}, {"nombre": "Pseudomonas aeruginosa", "familia": "Pseudomonadaceae", "gram": "Bacilo gram negativo, recto o ligeramente curvo, no fermentador", "tests": {"tsi": "K/K", "glucosa": "(-)", "sacarosa": "(-)", "lactosa": "(-)", "lisina_dc": "(+)", "lisina_da": "(-)", "urea": "(-/+)", "citrato": "(+)", "movilidad": "(+)", "indol": "(-)", "oxidasa": "(+)", "h2s": "(-)", "gas": "(-)", "rm": "(-)", "vp": "(-)", "fad": "(-)", "ornitina_dc": "(+)", "betagalactosidasa": "(-)", "malonato": "(+)", "nitrato": "(+)", "gelatina": "(-/+)"}, "medios": ["Agar cetrimida (selectivo)", "Agar MacConkey", "Agar sangre (pigmento verdoso, olor a uvas)"], "clinica": "Patógeno oportunista de gran relevancia hospitalaria: neumonía en pacientes con ventilación mecánica o fibrosis quística, infecciones de quemaduras y heridas, otitis externa maligna, infección urinaria asociada a sonda y bacteriemia en neutropénicos. Produce pigmentos característicos (piocianina azul-verdosa, pioverdina fluorescente) y es intrínsecamente resistente a múltiples antibióticos.", "tinciones": ["Ninguna adicional relevante (oxidasa ya es diferencial clave)"], "pruebas_extra": ["Prueba de oxidasa (positiva, clave para diferenciar de enterobacterias)", "Detección de pigmentos (piocianina/pioverdina) bajo luz UV", "Antibiograma con perfil de multirresistencia"], "del_pdf": true, "id": 27}, {"nombre": "Acinetobacter baumannii", "familia": "Moraxellaceae", "gram": "Cocobacilo gram negativo, no fermentador, oxidasa negativo", "tests": {"tsi": "K/K", "glucosa": "(-)", "sacarosa": "(-)", "lactosa": "(+)", "lisina_dc": "(+)", "lisina_da": "(-)", "urea": "(-/+)", "citrato": "(+)", "movilidad": "(-)", "indol": "(-)", "oxidasa": "(-)", "h2s": "(-)", "gas": "(-)", "rm": "(-)", "vp": "(-)", "fad": "(-)", "ornitina_dc": "(+)", "betagalactosidasa": "(-)", "malonato": "(+)", "nitrato": "(-)", "gelatina": "(-/+)"}, "medios": ["Agar MacConkey (colonias no fermentadoras)", "Agar sangre", "Agar Leeds/Herellea (selectivo)"], "clinica": "Patógeno oportunista nosocomial de gran importancia por su capacidad de sobrevivir en superficies inertes y desarrollar multirresistencia (incluida resistencia a carbapenémicos): neumonía asociada a ventilador, bacteriemia por catéter, infección de heridas (histórico en heridas de combate) e infección urinaria en pacientes críticos.", "tinciones": ["Tinción de Gram cuidadosa (puede decolorarse y verse como gramvariable/cocoide, confundiéndose con cocos)"], "pruebas_extra": ["Prueba de oxidasa (negativa, diferencia de Pseudomonas)", "Antibiograma con detección de carbapenemasas (OXA-23 y similares)"], "del_pdf": true, "id": 28}, {"nombre": "Vibrio cholerae", "familia": "Vibrionaceae", "gram": "Bacilo gram negativo curvo en forma de coma", "tests": {"tsi": "K/A", "glucosa": "(+)", "sacarosa": "(+)", "lactosa": "(-)", "lisina_dc": "(+)", "lisina_da": "(-)", "urea": "(-)", "citrato": "(-)", "movilidad": "(+)", "indol": "(+)", "oxidasa": "(+)", "h2s": "(-)", "gas": "(-)", "rm": "(+)", "vp": "(-)", "fad": "(-)", "ornitina_dc": "(+)", "betagalactosidasa": "(+)", "malonato": "(-)", "nitrato": "(+)", "gelatina": "(-)"}, "medios": ["Agar TCBS (tiosulfato-citrato-sales biliares-sacarosa; colonias amarillas)", "Agua peptonada alcalina (enriquecimiento)"], "clinica": "Agente del cólera: produce una diarrea acuosa masiva ('en agua de arroz') mediada por la toxina colérica, que puede llevar a deshidratación grave y muerte en horas si no se repone líquido y electrolitos a tiempo. Se transmite por agua y alimentos contaminados, con potencial epidémico/pandémico.", "tinciones": ["Microscopía en campo oscuro (motilidad característica 'en vuelo de mosca')"], "pruebas_extra": ["Serotipificación (O1, O139)", "Detección de toxina colérica", "Prueba de oxidasa (positiva)"], "del_pdf": true, "id": 29}, {"nombre": "Plesiomonas shigelloides", "familia": "Plesiomonadaceae (Enterobacterales)", "gram": "Bacilo gram negativo", "tests": {"tsi": "K/A", "glucosa": "(+)", "sacarosa": "(-)", "lactosa": "(-)", "lisina_dc": "(+)", "lisina_da": "(-)", "urea": "(-)", "citrato": "(-)", "movilidad": "(+)", "indol": "(+)", "oxidasa": "(+)", "h2s": "(-)", "gas": "(-)", "rm": "(+)", "vp": "(-)", "fad": "(-)", "ornitina_dc": "(+)", "betagalactosidasa": "(+)", "malonato": "(-)", "nitrato": "(+)", "gelatina": "(-)"}, "medios": ["Agar MacConkey", "Agar EMB (eosina-azul de metileno)", "Agar sangre de carnero al 5%", "Agar TSI/Kligler", "Agar TCBS (no crece o crece pobremente, útil para diferenciar de Vibrio)"], "clinica": "Causa gastroenteritis aguda asociada al consumo de mariscos crudos o agua contaminada, en general autolimitada, aunque puede ser más prolongada o invasiva en inmunocomprometidos. Comparte hábitat acuático con Aeromonas y Vibrio.", "tinciones": [], "pruebas_extra": ["Prueba de oxidasa (positiva, diferencia de las enterobacterias clásicas)"], "del_pdf": true, "id": 30}, {"nombre": "Hafnia alvei", "familia": "Enterobacterales (Enterobacteriaceae)", "gram": "Bacilo gram negativo", "tests": {"tsi": "K/A", "glucosa": "(+)", "sacarosa": "(-)", "lactosa": "(-)", "lisina_dc": "(+)", "lisina_da": "(-)", "urea": "(-)", "citrato": "(-/+)", "movilidad": "(+)", "indol": "(-)", "oxidasa": "(-)", "h2s": "(-)", "gas": "(-/+)", "rm": "(-/+)", "vp": "(+)", "fad": "(-)", "ornitina_dc": "(+)", "betagalactosidasa": "(-/+)", "malonato": "nd", "nitrato": "(+)", "gelatina": "(-)"}, "medios": ["Agar MacConkey", "Agar EMB", "Agar sangre"], "clinica": "Bacilo comensal intestinal ocasionalmente oportunista: se asocia a infecciones urinarias, de heridas, respiratorias y bacteriemia en pacientes con comorbilidades o inmunocomprometidos; su papel como patógeno primario es controvertido y muchas veces se aísla como colonizador.", "tinciones": ["Tinción de flagelos"], "pruebas_extra": ["Antibiograma", "Pruebas bioquímicas ampliadas (API 20E) por su perfil atípico similar a Enterobacter"], "del_pdf": false, "id": 31}, {"nombre": "Edwardsiella tarda", "familia": "Enterobacterales (Hafniaceae)", "gram": "Bacilo gram negativo", "tests": {"tsi": "K/A", "glucosa": "(+)", "sacarosa": "(-)", "lactosa": "(-)", "lisina_dc": "(+)", "lisina_da": "(-)", "urea": "(-)", "citrato": "(-)", "movilidad": "(+)", "indol": "(+)", "oxidasa": "(-)", "h2s": "(+)", "gas": "(+)", "rm": "(+)", "vp": "(-)", "fad": "(-)", "ornitina_dc": "(+)", "betagalactosidasa": "(-)", "malonato": "(-)", "nitrato": "(+)", "gelatina": "(-)"}, "medios": ["Agar MacConkey", "Agar SS", "Agar sangre"], "clinica": "Habita ambientes acuáticos y el intestino de peces y reptiles. Causa gastroenteritis autolimitada tras contacto con agua o pescado/mariscos contaminados, y con menor frecuencia infecciones de heridas, bacteriemia o abscesos en huéspedes inmunocomprometidos o con hepatopatía.", "tinciones": ["Tinción de flagelos"], "pruebas_extra": ["Cultivo de heridas expuestas a agua dulce o mariscos", "Antibiograma"], "del_pdf": false, "id": 32}, {"nombre": "Cronobacter sakazakii", "familia": "Enterobacterales (Enterobacteriaceae)", "gram": "Bacilo gram negativo", "tests": {"tsi": "A/A", "glucosa": "(+)", "sacarosa": "(+)", "lactosa": "(-/+)", "lisina_dc": "(-)", "lisina_da": "(-)", "urea": "(-/+)", "citrato": "(+)", "movilidad": "(+)", "indol": "(-)", "oxidasa": "(-)", "h2s": "(-)", "gas": "(+)", "rm": "(-)", "vp": "(+)", "fad": "(-)", "ornitina_dc": "(+)", "betagalactosidasa": "(+)", "malonato": "(+)", "nitrato": "(+)", "gelatina": "(+)"}, "medios": ["Agar MacConkey", "Agar cromogénico específico (colonias con pigmento amarillo)"], "clinica": "Antes clasificado como Enterobacter sakazakii; asociado a brotes graves de meningitis, sepsis y enterocolitis necrosante en neonatos y lactantes, típicamente vinculado a fórmula láctea en polvo contaminada. En adultos es infrecuente y oportunista.", "tinciones": ["Tinción de cápsula"], "pruebas_extra": ["Cultivo de LCR/hemocultivo en sospecha neonatal", "Investigación de fórmula láctea como fuente"], "del_pdf": false, "id": 33}, {"nombre": "Aeromonas hydrophila", "familia": "Aeromonadaceae", "gram": "Bacilo gram negativo", "tests": {"tsi": "A/A", "glucosa": "(+)", "sacarosa": "(+)", "lactosa": "(-/+)", "lisina_dc": "(+)", "lisina_da": "(-)", "urea": "(-)", "citrato": "(-/+)", "movilidad": "(+)", "indol": "(+)", "oxidasa": "(+)", "h2s": "(-)", "gas": "(+)", "rm": "(+)", "vp": "(+)", "fad": "(-)", "ornitina_dc": "(-)", "betagalactosidasa": "(+)", "malonato": "nd", "nitrato": "(+)", "gelatina": "(+)"}, "medios": ["Agar MacConkey", "Agar sangre (posible beta-hemólisis)", "Agar selectivo para Aeromonas (ampicilina)"], "clinica": "Habita agua dulce y salobre. Causa gastroenteritis tras ingestión de agua o alimentos contaminados, e infecciones de piel y tejidos blandos (celulitis grave, fascitis necrosante) tras heridas expuestas a agua, incluyendo casos asociados a sanguijuelas medicinales. La oxidasa positiva la distingue de las enterobacterias.", "tinciones": ["Ninguna adicional relevante"], "pruebas_extra": ["Prueba de oxidasa (positiva)", "Cultivo de heridas con antecedente de exposición a agua"], "del_pdf": false, "id": 34}, {"nombre": "Stenotrophomonas maltophilia", "familia": "Xanthomonadaceae", "gram": "Bacilo gram negativo, no fermentador", "tests": {"tsi": "K/K", "glucosa": "(-)", "sacarosa": "(-)", "lactosa": "(-)", "lisina_dc": "(+)", "lisina_da": "(-)", "urea": "(-/+)", "citrato": "(-/+)", "movilidad": "(+)", "indol": "(-)", "oxidasa": "(-)", "h2s": "(-)", "gas": "(-)", "rm": "nd", "vp": "(-)", "fad": "(-)", "ornitina_dc": "(-)", "betagalactosidasa": "nd", "malonato": "nd", "nitrato": "(-/+)", "gelatina": "(+)"}, "medios": ["Agar MacConkey (colonias lactosa negativas)", "Agar sangre"], "clinica": "No fermentador oportunista de creciente relevancia hospitalaria, con resistencia intrínseca a carbapenémicos: causa neumonía en pacientes con ventilación mecánica, fibrosis quística o cáncer, además de bacteriemia asociada a catéter. Su oxidasa negativa (a diferencia de Pseudomonas) es clave para su identificación presuntiva.", "tinciones": ["Ninguna adicional relevante"], "pruebas_extra": ["Prueba de oxidasa (negativa, diferencia de Pseudomonas)", "Antibiograma dirigido (resistencia intrínseca a carbapenémicos, sensible a cotrimoxazol)"], "del_pdf": false, "id": 35}, {"nombre": "Burkholderia cepacia", "familia": "Burkholderiaceae", "gram": "Bacilo gram negativo, no fermentador", "tests": {"tsi": "K/K", "glucosa": "(-/+)", "sacarosa": "(-/+)", "lactosa": "(-/+)", "lisina_dc": "(+)", "lisina_da": "(-)", "urea": "(-/+)", "citrato": "(+)", "movilidad": "(+)", "indol": "(-)", "oxidasa": "(-/+)", "h2s": "(-)", "gas": "(-)", "rm": "nd", "vp": "nd", "fad": "(-)", "ornitina_dc": "(-)", "betagalactosidasa": "nd", "malonato": "nd", "nitrato": "(-/+)", "gelatina": "(-/+)"}, "medios": ["Agar selectivo para Burkholderia cepacia (BCSA)", "Agar MacConkey"], "clinica": "No fermentador de particular importancia en pacientes con fibrosis quística y enfermedad granulomatosa crónica, donde puede causar el 'síndrome cepacia': neumonía necrosante rápidamente progresiva con alta mortalidad. Multirresistente de forma intrínseca, incluida resistencia a polimixinas.", "tinciones": ["Ninguna adicional relevante"], "pruebas_extra": ["Cultivo en medio selectivo BCSA", "Antibiograma con panel ampliado (resistencia intrínseca a colistina/aminoglucósidos)"], "del_pdf": false, "id": 36}, {"nombre": "Salmonella Typhimurium", "familia": "Enterobacterales (Enterobacteriaceae)", "gram": "Bacilo gram negativo", "tests": {"tsi": "K/A", "glucosa": "(+)", "sacarosa": "(-)", "lactosa": "(-)", "lisina_dc": "(+)", "lisina_da": "(-)", "urea": "(-)", "citrato": "(+)", "movilidad": "(+)", "indol": "(-)", "oxidasa": "(-)", "h2s": "(+)", "gas": "(-/+)", "rm": "(+)", "vp": "(-)", "fad": "(-)", "ornitina_dc": "(+)", "betagalactosidasa": "(-)", "malonato": "(-)", "nitrato": "(+)", "gelatina": "(-)"}, "medios": ["Agar SS", "Agar XLD (colonias con centro negro por H2S)", "Agar sulfito de bismuto"], "clinica": "Serovariedad no tifoidea más común en gastroenteritis alimentaria a nivel mundial (huevo, pollo, lácteos), con amplio reservorio animal (aves, reptiles). Causa diarrea, fiebre y dolor abdominal autolimitados en huéspedes sanos; en lactantes, ancianos o inmunocomprometidos puede bacteriemizar.", "tinciones": ["Tinción de flagelos"], "pruebas_extra": ["Serotipificación de Kauffmann-White (O:4, H:i, H:2)", "Coprocultivo en medios selectivos"], "del_pdf": false, "id": 37}, {"nombre": "Salmonella Enteritidis", "familia": "Enterobacterales (Enterobacteriaceae)", "gram": "Bacilo gram negativo", "tests": {"tsi": "K/A", "glucosa": "(+)", "sacarosa": "(-)", "lactosa": "(-)", "lisina_dc": "(+)", "lisina_da": "(-)", "urea": "(-)", "citrato": "(-/+)", "movilidad": "(+)", "indol": "(-)", "oxidasa": "(-)", "h2s": "(+)", "gas": "(-/+)", "rm": "(+)", "vp": "(-)", "fad": "(-)", "ornitina_dc": "(+)", "betagalactosidasa": "(-)", "malonato": "(-)", "nitrato": "(+)", "gelatina": "(-)"}, "medios": ["Agar SS", "Agar XLD", "Agar sulfito de bismuto"], "clinica": "Serovariedad líder en brotes asociados a huevo y derivados a nivel mundial, por contaminación transovárica de la gallina ponedora. Produce gastroenteritis aguda autolimitada; en inmunocomprometidos puede complicarse con bacteriemia.", "tinciones": ["Tinción de flagelos"], "pruebas_extra": ["Serotipificación (O:9, H:g,m)", "Investigación de brote alimentario (trazabilidad de huevo)"], "del_pdf": false, "id": 38}, {"nombre": "Escherichia coli O157:H7", "familia": "Enterobacterales (Enterobacteriaceae)", "gram": "Bacilo gram negativo", "tests": {"tsi": "A/A", "glucosa": "(+)", "sacarosa": "(-/+)", "lactosa": "(+)", "lisina_dc": "(-/+)", "lisina_da": "(-)", "urea": "(-)", "citrato": "(-)", "movilidad": "(+)", "indol": "(+)", "oxidasa": "(-)", "h2s": "(-)", "gas": "(+)", "rm": "(+)", "vp": "(-)", "fad": "(-)", "ornitina_dc": "(-/+)", "betagalactosidasa": "(+)", "malonato": "(-)", "nitrato": "(+)", "gelatina": "(-)"}, "medios": ["Agar sorbitol-MacConkey (colonias incoloras, NO fermenta sorbitol — clave diagnóstica)", "Agar MacConkey", "Agar cromogénico específico para O157"], "clinica": "Serotipo enterohemorrágico (EHEC) productor de toxina Shiga, transmitido por carne molida poco cocida, vegetales o agua contaminados. Causa colitis hemorrágica y es la principal causa infecciosa de síndrome urémico hemolítico (SUH) en niños, con riesgo de insuficiencia renal aguda.", "tinciones": ["Tinción de flagelos"], "pruebas_extra": ["Fermentación de sorbitol (negativa, a diferencia de la mayoría de E. coli)", "Detección de toxina Shiga (ELISA/PCR)", "Serotipificación O157:H7"], "del_pdf": false, "id": 39}, {"nombre": "Providencia rettgeri", "familia": "Enterobacterales (Enterobacteriaceae, tribu Proteeae)", "gram": "Bacilo gram negativo", "tests": {"tsi": "K/A", "glucosa": "(+)", "sacarosa": "(-/+)", "lactosa": "(-)", "lisina_dc": "(-)", "lisina_da": "(+)", "urea": "(+)", "citrato": "(+)", "movilidad": "(+)", "indol": "(+)", "oxidasa": "(-)", "h2s": "(-)", "gas": "(-/+)", "rm": "(+)", "vp": "(-)", "fad": "(+)", "ornitina_dc": "(-)", "betagalactosidasa": "(-)", "malonato": "(-)", "nitrato": "(+)", "gelatina": "(-/+)"}, "medios": ["Agar MacConkey", "Agar sangre"], "clinica": "Se asocia a infecciones urinarias crónicas en pacientes con sondaje vesical permanente, formando biopelículas resistentes; su ureasa fuerte favorece la formación de cálculos de estruvita e incrustación de catéteres. A diferencia de P. stuartii, su ureasa es marcadamente positiva.", "tinciones": ["Tinción de flagelos"], "pruebas_extra": ["Prueba de ureasa (fuertemente positiva)", "Cultivo de punta de catéter en sondaje prolongado"], "del_pdf": false, "id": 40}, {"nombre": "Citrobacter amalonaticus", "familia": "Enterobacterales (Enterobacteriaceae)", "gram": "Bacilo gram negativo", "tests": {"tsi": "A/A", "glucosa": "(+)", "sacarosa": "(-/+)", "lactosa": "(-/+)", "lisina_dc": "(-)", "lisina_da": "(-)", "urea": "(-/+)", "citrato": "(-)", "movilidad": "(+)", "indol": "(+)", "oxidasa": "(-)", "h2s": "(-)", "gas": "(+)", "rm": "(+)", "vp": "(-)", "fad": "(-)", "ornitina_dc": "(-)", "betagalactosidasa": "(-/+)", "malonato": "(-)", "nitrato": "(+)", "gelatina": "(-)"}, "medios": ["Agar MacConkey", "Agar citrato de Simmons (negativo, a diferencia de otras Citrobacter)"], "clinica": "Aislamiento infrecuente asociado a infecciones urinarias y de heridas; su citrato negativo y malonato negativo la distinguen de C. freundii y C. koseri dentro del género.", "tinciones": ["Tinción de flagelos"], "pruebas_extra": ["Prueba de citrato de Simmons y malonato para diferenciación de especie"], "del_pdf": false, "id": 41}, {"nombre": "Enterobacter asburiae", "familia": "Enterobacterales (Enterobacteriaceae)", "gram": "Bacilo gram negativo", "tests": {"tsi": "A/A", "glucosa": "(+)", "sacarosa": "(+)", "lactosa": "(-/+)", "lisina_dc": "(-)", "lisina_da": "(-)", "urea": "(-/+)", "citrato": "(+)", "movilidad": "(+)", "indol": "(-)", "oxidasa": "(-)", "h2s": "(-)", "gas": "(+)", "rm": "(-)", "vp": "(+)", "fad": "(-)", "ornitina_dc": "(+)", "betagalactosidasa": "(+)", "malonato": "(-/+)", "nitrato": "(+)", "gelatina": "(-)"}, "medios": ["Agar MacConkey", "Agar citrato de Simmons"], "clinica": "Miembro del complejo Enterobacter cloacae, aislado en infecciones nosocomiales oportunistas (urinarias, heridas, bacteriemia) de forma similar a E. cloacae; su identificación definitiva a nivel de especie suele requerir MALDI-TOF o secuenciación por el gran parecido bioquímico dentro del complejo.", "tinciones": ["Tinción de cápsula"], "pruebas_extra": ["Identificación por MALDI-TOF o secuenciación (complejo E. cloacae)", "Antibiograma"], "del_pdf": false, "id": 42}, {"nombre": "Serratia liquefaciens", "familia": "Enterobacterales (Enterobacteriaceae)", "gram": "Bacilo gram negativo", "tests": {"tsi": "A/A", "glucosa": "(+)", "sacarosa": "(+)", "lactosa": "(-/+)", "lisina_dc": "(-)", "lisina_da": "(-)", "urea": "(-)", "citrato": "(+)", "movilidad": "(+)", "indol": "(-)", "oxidasa": "(-)", "h2s": "(-)", "gas": "(+)", "rm": "(-/+)", "vp": "(+)", "fad": "(-)", "ornitina_dc": "(+)", "betagalactosidasa": "(+)", "malonato": "(-)", "nitrato": "(+)", "gelatina": "(+)"}, "medios": ["Agar MacConkey", "Agar DNasa"], "clinica": "Menos frecuente que S. marcescens; se ha asociado a brotes nosocomiales por contaminación de soluciones intravenosas o hemoderivados, causando bacteriemia, y a infecciones urinarias y de heridas en pacientes hospitalizados. No suele producir el pigmento rojo típico de S. marcescens.", "tinciones": ["Tinción de flagelos"], "pruebas_extra": ["Prueba de DNasa", "Investigación de fuente en brotes por soluciones contaminadas"], "del_pdf": false, "id": 43}, {"nombre": "Raoultella ornithinolytica", "familia": "Enterobacterales (Enterobacteriaceae)", "gram": "Bacilo gram negativo", "tests": {"tsi": "A/A", "glucosa": "(+)", "sacarosa": "(+)", "lactosa": "(+)", "lisina_dc": "(+)", "lisina_da": "(-)", "urea": "(+)", "citrato": "(+)", "movilidad": "(-)", "indol": "(+)", "oxidasa": "(-)", "h2s": "(-)", "gas": "(+)", "rm": "(-)", "vp": "(+)", "fad": "(-)", "ornitina_dc": "(+)", "betagalactosidasa": "(+)", "malonato": "(+)", "nitrato": "(+)", "gelatina": "(-)"}, "medios": ["Agar MacConkey", "Agar citrato de Simmons"], "clinica": "Antes clasificada como Klebsiella ornithinolytica; se distingue de Klebsiella por ser ornitina descarboxilasa positiva y no móvil. Es un patógeno oportunista raro, asociado a infecciones urinarias, de heridas y bacteriemia, y descrita también en intoxicación histamínica por pescado (produce histidina descarboxilasa).", "tinciones": ["Ninguna adicional relevante"], "pruebas_extra": ["Prueba de ornitina descarboxilasa (positiva, diferencia clave de Klebsiella)", "Determinación de histamina en intoxicación alimentaria por pescado"], "del_pdf": false, "id": 44}, {"nombre": "Pantoea agglomerans", "familia": "Enterobacterales (Erwiniaceae)", "gram": "Bacilo gram negativo", "tests": {"tsi": "A/A", "glucosa": "(+)", "sacarosa": "(+)", "lactosa": "(-/+)", "lisina_dc": "(-)", "lisina_da": "(-)", "urea": "(-/+)", "citrato": "(-/+)", "movilidad": "(+)", "indol": "(-)", "oxidasa": "(-)", "h2s": "(-)", "gas": "(-)", "rm": "(-/+)", "vp": "(+)", "fad": "(-)", "ornitina_dc": "(-)", "betagalactosidasa": "(+)", "malonato": "nd", "nitrato": "(-/+)", "gelatina": "(-)"}, "medios": ["Agar MacConkey (colonias con pigmento amarillo)", "Agar sangre"], "clinica": "Fitopatógeno y habitante habitual de plantas y suelo; causa infecciones oportunistas típicamente tras heridas penetrantes con material vegetal (espinas, astillas), incluyendo artritis séptica y celulitis, así como brotes por contaminación de soluciones intravenosas.", "tinciones": ["Ninguna adicional relevante"], "pruebas_extra": ["Antecedente de herida con material vegetal (dato clínico clave)", "Investigación de soluciones IV en brotes nosocomiales"], "del_pdf": false, "id": 45}, {"nombre": "Leclercia adecarboxylata", "familia": "Enterobacterales (Enterobacteriaceae)", "gram": "Bacilo gram negativo", "tests": {"tsi": "A/A", "glucosa": "(+)", "sacarosa": "(+)", "lactosa": "(+)", "lisina_dc": "(-)", "lisina_da": "(-)", "urea": "(-)", "citrato": "(+)", "movilidad": "(+)", "indol": "(-/+)", "oxidasa": "(-)", "h2s": "(-)", "gas": "(+)", "rm": "(+)", "vp": "(-)", "fad": "(-)", "ornitina_dc": "(-)", "betagalactosidasa": "(+)", "malonato": "nd", "nitrato": "(+)", "gelatina": "(-)"}, "medios": ["Agar MacConkey", "Agar citrato de Simmons"], "clinica": "Patógeno oportunista infrecuente, aislado ocasionalmente de heridas (incluidas las contaminadas con tierra o material vegetal), infecciones urinarias y bacteriemia en pacientes inmunocomprometidos o con catéteres. Su ausencia de descarboxilasas de lisina, ornitina y arginina es característica del género.", "tinciones": ["Ninguna adicional relevante"], "pruebas_extra": ["Perfil de descarboxilasas (todas negativas, orienta al género)"], "del_pdf": false, "id": 46}, {"nombre": "Kluyvera ascorbata", "familia": "Enterobacterales (Enterobacteriaceae)", "gram": "Bacilo gram negativo", "tests": {"tsi": "A/A", "glucosa": "(+)", "sacarosa": "(-/+)", "lactosa": "(-/+)", "lisina_dc": "(-)", "lisina_da": "(-)", "urea": "(-)", "citrato": "(+)", "movilidad": "(+)", "indol": "(-/+)", "oxidasa": "(-)", "h2s": "(-)", "gas": "(+)", "rm": "(+)", "vp": "(-)", "fad": "(-)", "ornitina_dc": "(+)", "betagalactosidasa": "(+)", "malonato": "nd", "nitrato": "(+)", "gelatina": "(-)"}, "medios": ["Agar MacConkey", "Agar citrato de Simmons"], "clinica": "Habita agua, suelo y alimentos; se comporta como oportunista raro en infecciones urinarias, de heridas y bacteriemia, casi siempre en pacientes con comorbilidades importantes o dispositivos invasivos.", "tinciones": ["Ninguna adicional relevante"], "pruebas_extra": ["Identificación por MALDI-TOF o secuenciación (bioquímicamente similar a Enterobacter/Citrobacter)"], "del_pdf": false, "id": 47}, {"nombre": "Vibrio parahaemolyticus", "familia": "Vibrionaceae", "gram": "Bacilo gram negativo curvo (forma de coma)", "tests": {"tsi": "K/A", "glucosa": "(+)", "sacarosa": "(-)", "lactosa": "(-)", "lisina_dc": "(+)", "lisina_da": "(-)", "urea": "(-)", "citrato": "(-/+)", "movilidad": "(+)", "indol": "(+)", "oxidasa": "(+)", "h2s": "(-)", "gas": "(-)", "rm": "(+)", "vp": "(-)", "fad": "(-)", "ornitina_dc": "(+)", "betagalactosidasa": "(-)", "malonato": "nd", "nitrato": "(+)", "gelatina": "(+)"}, "medios": ["Agar TCBS (colonias verdes, no fermenta sacarosa — a diferencia de V. cholerae)", "Requiere NaCl para crecer (halofílico)"], "clinica": "Principal causa bacteriana de gastroenteritis asociada al consumo de mariscos y pescado crudo o mal cocido en zonas costeras; produce diarrea acuosa autolimitada (fenómeno de Kanagawa en cepas patógenas) y, con exposición de heridas a agua de mar, celulitis que puede progresar rápidamente en hepatópatas.", "tinciones": ["Microscopía en campo oscuro (motilidad característica)"], "pruebas_extra": ["Prueba de crecimiento halofílico (requerimiento de NaCl)", "Prueba de Kanagawa", "Prueba de oxidasa (positiva)"], "del_pdf": false, "id": 48}, {"nombre": "Vibrio vulnificus", "familia": "Vibrionaceae", "gram": "Bacilo gram negativo curvo (forma de coma)", "tests": {"tsi": "K/A", "glucosa": "(+)", "sacarosa": "(-)", "lactosa": "(+)", "lisina_dc": "(+)", "lisina_da": "(-)", "urea": "(-)", "citrato": "(-/+)", "movilidad": "(+)", "indol": "(+)", "oxidasa": "(+)", "h2s": "(-)", "gas": "(-)", "rm": "(+)", "vp": "(-)", "fad": "(-)", "ornitina_dc": "(+)", "betagalactosidasa": "(+)", "malonato": "nd", "nitrato": "(+)", "gelatina": "(+)"}, "medios": ["Agar TCBS (colonias verdes)", "Requiere NaCl para crecer (halofílico)"], "clinica": "Causa una de las infecciones más letales asociadas a mariscos: septicemia primaria fulminante tras consumo de ostras crudas en pacientes con hepatopatía crónica o hemocromatosis (mortalidad muy alta), y celulitis necrosante grave tras exposición de heridas a agua de mar tibia. Es infrecuente pero de curso muy agresivo.", "tinciones": ["Microscopía en campo oscuro"], "pruebas_extra": ["Prueba de crecimiento halofílico", "Hemocultivo urgente en sospecha de septicemia por mariscos", "Prueba de oxidasa (positiva)"], "del_pdf": false, "id": 49}, {"nombre": "Aeromonas caviae", "familia": "Aeromonadaceae", "gram": "Bacilo gram negativo", "tests": {"tsi": "A/A", "glucosa": "(+)", "sacarosa": "(+)", "lactosa": "(-/+)", "lisina_dc": "(-)", "lisina_da": "(-)", "urea": "(-)", "citrato": "(-/+)", "movilidad": "(+)", "indol": "(+)", "oxidasa": "(+)", "h2s": "(-)", "gas": "(-)", "rm": "(+)", "vp": "(-)", "fad": "(-)", "ornitina_dc": "(-)", "betagalactosidasa": "(+)", "malonato": "nd", "nitrato": "(+)", "gelatina": "(+)"}, "medios": ["Agar MacConkey", "Agar selectivo para Aeromonas"], "clinica": "Especie de Aeromonas asociada sobre todo a diarrea infantil, generalmente más leve y menos invasiva que A. hydrophila; también puede causar infecciones de heridas expuestas a agua dulce.", "tinciones": ["Ninguna adicional relevante"], "pruebas_extra": ["Prueba de oxidasa (positiva)", "Cultivo de heridas con exposición a agua dulce"], "del_pdf": false, "id": 50}, {"nombre": "Campylobacter jejuni", "familia": "Campylobacteraceae", "gram": "Bacilo curvo en espiral (sacacorcho), gram negativo", "tests": {"tsi": "K/K", "glucosa": "(-)", "sacarosa": "(-)", "lactosa": "(-)", "lisina_dc": "nd", "lisina_da": "nd", "urea": "(-)", "citrato": "(-)", "movilidad": "(+)", "indol": "(-)", "oxidasa": "(+)", "h2s": "(-)", "gas": "(-)", "rm": "nd", "vp": "nd", "fad": "(-)", "ornitina_dc": "(-)", "betagalactosidasa": "nd", "malonato": "nd", "nitrato": "nd", "gelatina": "nd"}, "medios": ["Agar CCDA (cefoperazona-carbón-desoxicolato)", "Agar Preston", "Agar Butzler", "Microaerofilia (5% O2, 10% CO2), 42°C"], "clinica": "Principal causa bacteriana de gastroenteritis a nivel mundial, transmitida por pollo mal cocido, leche no pasteurizada y agua contaminada: diarrea (a veces sanguinolenta), fiebre y dolor abdominal tipo cólico. Es asaccharolítico (no fermenta azúcares) y por eso las pruebas clásicas de TSI/LIA/MIO no aplican de forma convencional; se identifica por su morfología en sacacorcho, motilidad característica, oxidasa y catalasa positivas, y crecimiento a 42°C en microaerofilia. Se asocia a complicaciones postinfecciosas como el síndrome de Guillain-Barré, artritis reactiva y síndrome de Reiter.", "tinciones": ["Tinción de Leifson", "Tinción de Maneval", "Tinción de naranja de acridina"], "pruebas_extra": ["Prueba de hipurato (positiva, diferencia de C. coli)", "Prueba de oxidasa y catalasa (ambas positivas)", "Microscopía en campo oscuro o contraste de fases (motilidad característica 'en vuelo de mosquito')"], "del_pdf": false, "id": 51}];
+// ---------- Biochemical tube illustrations (modeled on the reference sheet) ----------
+// Geometry: narrow glass tube with blue cap; agar sits in the lower part.
+// Slanted media (TSI, LIA, citrato, urea) get a wedge-shaped "pico de flauta";
+// MIO is a flat semisolid column with Kovacs ring on top.
+const TC = {
+  acid: "#FBEA1C", alk: "#C8352C", ctrlTSI: "#E88B2C", blk: "#1B1613",
+  ldcPos: "#7E559E", violet: "#C24CF2", lda: "#F2566E", yel: "#E9C31B",
+  mioCtrl: "#9B5C97", ringRed: "#E3221C", ringYel: "#E9C61D",
+  mioTan: "#D8925F", mioTanEdge: "#B8683C", mioPurple: "#8E44E0", growth: "#F3DEC3",
+  citNeg: "#10BF62", citPos: "#0B4CAE", ureaNeg: "#F6E37F", ureaPos: "#F4749F",
+  glass: "#B4C7D4", capA: "#3E9FD2", capB: "#63BDE8", capEdge: "#2F86B6",
+};
+let __uid = 0;
+
+const SLANT_D = "M16,127 C26,120 38,96 44,68 Q46,62 48,64 L48,178 A16,16 0 0 1 16,178 Z";
+const COLUMN_D = "M17,90 Q17,85 22,85 L42,85 Q47,85 47,90 L47,178 A15,15 0 0 1 17,178 Z";
+
+function shell(u, agarD, inner, faded, aria) {
+  const op = faded ? 0.42 : 1;
+  return `<svg viewBox="0 0 64 210" width="58" height="190" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${aria || "tubo"}">
+    <defs>
+      <clipPath id="tc${u}"><path d="M16,30 L48,30 L48,178 A16,16 0 0 1 16,178 Z"/></clipPath>
+      <clipPath id="ag${u}"><path d="${agarD}"/></clipPath>
+    </defs>
+    <path d="M13,28 L51,28 L51,178 A19,19 0 0 1 13,178 Z" fill="rgba(226,238,246,.35)"/>
+    <g clip-path="url(#tc${u})"><g clip-path="url(#ag${u})" opacity="${op}">${inner}</g></g>
+    <path d="M13,28 L51,28 L51,178 A19,19 0 0 1 13,178 Z" fill="none" stroke="${TC.glass}" stroke-width="1.8"/>
+    <rect x="17" y="34" width="2.6" height="118" rx="1.3" fill="#fff" opacity=".45"/>
+    <ellipse cx="32" cy="194" rx="9" ry="2" fill="#BFE0F3" opacity=".85"/>
+    <rect x="10" y="4" width="44" height="22" rx="4" fill="${TC.capA}"/>
+    <rect x="10" y="4" width="44" height="7" rx="3.5" fill="${TC.capB}" opacity=".85"/>
+    <path d="M17,11V24M23,11V24M29,11V24M35,11V24M41,11V24M47,11V24" stroke="${TC.capEdge}" stroke-width="1" opacity=".55"/>
+    <rect x="8" y="24" width="48" height="6" rx="3" fill="${TC.capA}" stroke="${TC.capEdge}" stroke-width=".8"/>
+  </svg>`;
+}
+
+function h2sWedge() {
+  return `<path d="M47,64 L48,194 L19,194 C17,170 26,150 33,122 C38,100 43,80 47,64 Z" fill="${TC.blk}"/>`;
+}
+function h2sMass() {
+  return `<path d="M45,72 L48,194 L16,194 L16,133 C24,127 36,105 45,72 Z" fill="${TC.blk}"/>`;
+}
+function gasBubbles() {
+  return `<ellipse cx="34" cy="152" rx="3.4" ry="9.5" fill="#FBFEFF" stroke="#9CC4EA" stroke-width="1"/>
+    <circle cx="27" cy="133" r="2.4" fill="#EFF7FF" stroke="#8DB8E4" stroke-width="1"/>
+    <circle cx="38" cy="177" r="2.6" fill="#EFF7FF" stroke="#8DB8E4" stroke-width="1"/>`;
+}
+
+// generic slanted-agar builder
+function slantTube(slant, butt, opts) {
+  opts = opts || {};
+  const u = ++__uid;
+  let inner = `<rect x="14" y="58" width="36" height="140" fill="${slant}"/>`;
+  if (butt && butt !== slant) {
+    inner += `<defs><linearGradient id="gb${u}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="${butt}" stop-opacity="0"/>
+        <stop offset=".09" stop-color="${butt}" stop-opacity="1"/>
+        <stop offset="1" stop-color="${butt}"/></linearGradient></defs>
+      <rect x="14" y="121" width="36" height="80" fill="url(#gb${u})"/>`;
+  }
+  if (opts.h2s === "wedge") inner += h2sWedge();
+  if (opts.h2s === "mass") inner += h2sMass();
+  if (opts.gas) inner += gasBubbles();
+  inner += `<path d="M16,127 C26,120 38,96 44,68" fill="none" stroke="rgba(0,0,0,.16)" stroke-width="1"/>`;
+  return shell(u, SLANT_D, inner, opts.faded, opts.aria);
+}
+
+// v: { tsi:'A/A'|'K/A'|'K/K'|undefined, gas:'+'|'-'|undefined, h2s:'+'|'-'|undefined }
+function tsiTube(v) {
+  let slant, butt;
+  if (v.tsi === "A/A") { slant = TC.acid; butt = TC.acid; }
+  else if (v.tsi === "K/A") { slant = TC.alk; butt = TC.acid; }
+  else if (v.tsi === "K/K") { slant = TC.alk; butt = TC.alk; }
+  else { slant = TC.ctrlTSI; butt = TC.ctrlTSI; }
+  const nodata = !v.tsi && !v.gas && !v.h2s;
+  return slantTube(slant, butt, { h2s: v.h2s === "+" ? "wedge" : null, gas: v.gas === "+", faded: nodata, aria: "Tubo TSI" });
+}
+
+// v: { ldc, lda, h2s }
+function liaTube(v) {
+  let slant, butt;
+  if (v.lda === "+") { slant = TC.lda; butt = v.ldc === "+" ? TC.ldcPos : TC.yel; }
+  else {
+    slant = v.ldc === "+" ? TC.ldcPos : TC.violet;
+    butt = v.ldc === "+" ? TC.ldcPos : (v.ldc === "-" ? TC.yel : TC.violet);
+  }
+  const nodata = !v.ldc && !v.lda && !v.h2s;
+  return slantTube(slant, butt, { h2s: v.h2s === "+" ? "mass" : null, faded: nodata, aria: "Tubo LIA" });
+}
+
+// v: { mov, indol, orn }
+function mioTube(v) {
+  const u = ++__uid;
+  const nodata = !v.mov && !v.indol && !v.orn;
+  let inner = "";
+  if (nodata) {
+    inner += `<rect x="14" y="80" width="36" height="120" fill="${TC.mioCtrl}"/>`;
+  } else if (v.orn === "+") {
+    inner += `<rect x="14" y="80" width="36" height="120" fill="${TC.mioPurple}"/>
+      <rect x="14" y="80" width="36" height="16" fill="${TC.yel}"/>`;
+  } else if (v.orn === "-") {
+    inner += `<rect x="14" y="80" width="36" height="120" fill="${TC.mioTan}"/>`;
+  } else {
+    inner += `<rect x="14" y="80" width="36" height="120" fill="#DDD6C4"/>`;
+  }
+  if (v.mov === "+") {
+    inner += `<path d="M32,90 C19,112 20,160 32,186 C44,160 45,112 32,90 Z" fill="${TC.growth}" opacity=".95"/>`;
+  }
+  if (v.mov) {
+    inner += `<line x1="32" y1="86" x2="32" y2="188" stroke="${TC.mioTanEdge}" stroke-width="2.6" opacity=".55"/>
+      <line x1="32" y1="86" x2="32" y2="188" stroke="#F1D6B8" stroke-width="1.2" opacity=".9"/>`;
+  }
+  // ring drawn above the column (outside agar clip is fine, but keep inside for simplicity)
+  const ring = v.indol === "+" ? TC.ringRed : (v.indol === "-" ? TC.ringYel : null);
+  let svg = shell(u, COLUMN_D, inner, nodata, "Tubo MIO");
+  if (ring) {
+    svg = svg.replace("</svg>", `<rect x="17" y="72" width="30" height="13" rx="4" fill="${ring}"/></svg>`);
+  }
+  return svg;
+}
+
+// v: { cit }
+function citratoTube(v) {
+  const color = v.cit === "+" ? TC.citPos : TC.citNeg;
+  return slantTube(color, color, { faded: !v.cit, aria: "Tubo citrato" });
+}
+
+// v: { ure }
+function ureaTube(v) {
+  const color = v.ure === "+" ? TC.ureaPos : TC.ureaNeg;
+  return slantTube(color, color, { faded: !v.ure, aria: "Tubo urea" });
+}
+
+// ---------- Test definitions ----------
+const GROUPS = [
+  { title: "TSI / Kligler y azúcares", tests: [
+    { key: "tsi", label: "Reacción en TSI o Kligler", type: "tsi" },
+    { key: "glucosa", label: "Glucosa (fermentación)", type: "pm" },
+    { key: "sacarosa", label: "Sacarosa (fermentación)", type: "pm" },
+    { key: "lactosa", label: "Lactosa (fermentación)", type: "pm" },
+    { key: "gas", label: "Producción de gas", type: "pm" },
+    { key: "h2s", label: "Ácido sulfhídrico (H₂S)", type: "pm" },
+  ]},
+  { title: "LIA, motilidad e indol", tests: [
+    { key: "lisina_dc", label: "Lisina descarboxilasa (LDC)", type: "pm" },
+    { key: "lisina_da", label: "Lisina desaminasa (LDA)", type: "pm" },
+    { key: "movilidad", label: "Movilidad", type: "pm" },
+    { key: "indol", label: "Indol", type: "pm" },
+    { key: "ornitina_dc", label: "Ornitina descarboxilasa", type: "pm" },
+  ]},
+  { title: "IMViC extendido", tests: [
+    { key: "urea", label: "Ureasa", type: "pm" },
+    { key: "citrato", label: "Citrato de Simmons", type: "pm" },
+    { key: "rm", label: "Rojo de metilo (RM)", type: "pm" },
+    { key: "vp", label: "Voges-Proskauer (VP)", type: "pm" },
+    { key: "oxidasa", label: "Oxidasa", type: "pm" },
+    { key: "fad", label: "Fenilalanina desaminasa (PAD/FAD)", type: "pm" },
+  ]},
+  { title: "Pruebas complementarias", tests: [
+    { key: "betagalactosidasa", label: "β-galactosidasa (ONPG)", type: "pm" },
+    { key: "malonato", label: "Malonato", type: "pm" },
+    { key: "nitrato", label: "Reducción de nitratos", type: "pm" },
+    { key: "gelatina", label: "Hidrólisis de gelatina", type: "pm" },
+  ]},
+];
+const TEST_LABELS = {};
+GROUPS.forEach(g => g.tests.forEach(t => TEST_LABELS[t.key] = t.label));
+const answers = {};
+
+// ---------- Helpers ----------
+function normalize(v) { return (v || "").replace(/[()]/g, "").trim(); }
+
+// -> '+', '-', 'v' (variable), array (tsi), or undefined
+function nzKey(key, raw) {
+  if (raw === undefined || raw === null || raw === "" || raw === "nd") return undefined;
+  if (key === "tsi") return raw.split(/\s*o\s*/).map(s => s.trim());
+  const nv = normalize(raw);
+  return nv === "-/+" ? "v" : nv;
+}
+const NAMES = { tsi: "TSI", gas: "Gas", h2s: "H₂S", ldc: "LDC", lda: "LDA", mov: "Movilidad", indol: "Indol", orn: "Ornitina", cit: "Citrato", ure: "Urea" };
+
+// ---------- Tube specs ----------
+const TUBE_SPECS = [
+  { id: "tsi", label: "TSI / Kligler", map: { tsi: "tsi", gas: "gas", h2s: "h2s" }, build: tsiTube,
+    lines: v => {
+      const L = [];
+      if (v.tsi === "A/A") L.push("Pico y fondo amarillos: fermenta glucosa y lactosa y/o sacarosa");
+      else if (v.tsi === "K/A") L.push("Pico rojo / fondo amarillo: solo fermenta la glucosa");
+      else if (v.tsi === "K/K") L.push("Pico y fondo rojos: no fermenta azúcares");
+      if (v.gas === "+") L.push("Burbujas o ruptura del medio: produce gas");
+      else if (v.gas === "-") L.push("Sin producción de gas");
+      if (v.h2s === "+") L.push("Ennegrecimiento: produce H₂S");
+      else if (v.h2s === "-") L.push("Sin ennegrecimiento (H₂S −)");
+      return L;
+    } },
+  { id: "lia", label: "LIA", map: { ldc: "lisina_dc", lda: "lisina_da", h2s: "h2s" }, build: liaTube,
+    lines: v => {
+      const L = [];
+      if (v.ldc === "+") L.push("Descarboxilación (+): pico y fondo violeta");
+      else if (v.ldc === "-" && v.lda !== "+") L.push("Descarboxilación (−): pico violeta / fondo amarillo");
+      if (v.lda === "+") L.push("Desaminación (+): pico rojo / fondo amarillo");
+      if (v.h2s === "+") L.push("Ennegrecimiento en profundidad: H₂S +");
+      else if (v.h2s === "-") L.push("Sin H₂S en LIA");
+      return L;
+    } },
+  { id: "mio", label: "MIO", map: { mov: "movilidad", indol: "indol", orn: "ornitina_dc" }, build: mioTube,
+    lines: v => {
+      const L = [];
+      if (v.mov === "+") L.push("Turbidez fuera de la línea de siembra: móvil");
+      else if (v.mov === "-") L.push("Crecimiento solo en la línea: inmóvil");
+      if (v.indol === "+") L.push("Anillo rojo con Kovacs: indol +");
+      else if (v.indol === "-") L.push("Anillo amarillo: indol −");
+      if (v.orn === "+") L.push("Medio púrpura: ornitina descarboxilasa +");
+      else if (v.orn === "-") L.push("Sin cambio de color: ornitina −");
+      return L;
+    } },
+  { id: "cit", label: "Citrato", map: { cit: "citrato" }, build: citratoTube,
+    lines: v => v.cit === "+" ? ["Verde → azul: utiliza el citrato"] : v.cit === "-" ? ["Sigue verde: no utiliza el citrato"] : [] },
+  { id: "ure", label: "Urea", map: { ure: "urea" }, build: ureaTube,
+    lines: v => v.ure === "+" ? ["Viraje a rosado/rojo: hidroliza la urea"] : v.ure === "-" ? ["Sigue amarillo: sin ureasa"] : [] },
+];
+
+// LIA-specific H2S reading from the MDM insert: Proteus / Providencia do not blacken LIA
+const LIA_H2S_NEG = new Set(["Proteus", "Providencia"]);
+
+// TSI is fundamentally a readout of glucose/lactose/sucrose fermentation.
+// If the direct TSI reading isn't captured yet but the individual sugars are,
+// derive the expected pico/fondo from them so the tube still updates live.
+function deriveTSI(source) {
+  const g = nzKey("glucosa", source.glucosa);
+  const s = nzKey("sacarosa", source.sacarosa);
+  const l = nzKey("lactosa", source.lactosa);
+  if (g === undefined && s === undefined && l === undefined) return undefined;
+  if (g === "-") return "K/K";
+  if (g === "+") return (s === "+" || l === "+") ? "A/A" : "K/A";
+  return undefined; // glucose variable/unknown: not enough to call it yet
+}
+
+function prepValues(spec, source, org) {
+  const n = {};
+  Object.keys(spec.map).forEach(vk => { n[vk] = nzKey(spec.map[vk], source[spec.map[vk]]); });
+  if (spec.id === "tsi" && !n.tsi) {
+    const derived = deriveTSI(source);
+    if (derived) n.tsi = derived;
+  }
+  if (spec.id === "lia" && org && LIA_H2S_NEG.has(org.nombre.split(" ")[0])) n.h2s = "-";
+  return n;
+}
+
+// Variable results (-/+) and multi-value TSI ("A/A o K/A") expand into two extremes
+function expandVariants(n) {
+  const varKeys = Object.keys(n).filter(k => n[k] === "v");
+  const tsiMulti = Array.isArray(n.tsi) && n.tsi.length > 1;
+  const base = Object.assign({}, n);
+  if (Array.isArray(base.tsi)) base.tsi = base.tsi[0];
+  if (!varKeys.length && !tsiMulti) return [{ v: base, cap: null }];
+  const A = Object.assign({}, base), B = Object.assign({}, base);
+  varKeys.forEach(k => { A[k] = "+"; B[k] = "-"; });
+  if (tsiMulti) { A.tsi = n.tsi[0]; B.tsi = n.tsi[1]; }
+  const capOf = v => [].concat(tsiMulti ? ["TSI " + v.tsi] : [], varKeys.map(k => NAMES[k] + " " + (v[k] === "+" ? "+" : "−"))).join(" · ");
+  return [{ v: A, cap: capOf(A) }, { v: B, cap: capOf(B) }];
+}
+
+function tubeCardHtml(spec, v, sub, badge, emptyMsg) {
+  const lines = spec.lines(v);
+  const svg = spec.build(v);
+  const list = lines.length ? lines : [emptyMsg || "Sin dato"];
+  return `<div class="tube-card">${svg}
+    <div class="tlabel">${spec.label}</div>
+    ${sub ? `<div class="tsub">${sub}</div>` : ""}
+    ${badge || ""}
+    <ul class="tlines">${list.map(l => `<li>${l}</li>`).join("")}</ul></div>`;
+}
+
+// ---------- Live preview of the user's own tubes ----------
+function renderUserTubes() {
+  const box = document.getElementById("userTubes");
+  if (!box) return;
+  box.innerHTML = TUBE_SPECS.map(spec => {
+    const n = prepValues(spec, answers, null);
+    const v = Object.assign({}, n);
+    if (Array.isArray(v.tsi)) v.tsi = v.tsi[0];
+    const has = Object.keys(spec.map).some(k => v[k] !== undefined);
+    let sub = null;
+    if (spec.id === "tsi" && v.tsi && !answers.tsi) sub = "Derivado de tus azúcares";
+    return tubeCardHtml(spec, v, sub, "", has ? "" : "Sin capturar (medio sin inocular)");
+  }).join("");
+}
+
+// ---------- Form ----------
+function renderForm() {
+  const panel = document.getElementById("formPanel");
+  let html = "";
+  GROUPS.forEach((g, gi) => {
+    html += `<div class="group" data-g="${gi}"><div class="group-head"><span class="group-num">0${gi + 1}</span><span class="group-title">${g.title}</span></div><div class="rows">`;
+    g.tests.forEach(t => {
+      if (t.type === "tsi") {
+        html += `<div class="row"><label for="f_${t.key}">${t.label}</label>
+          <select id="f_${t.key}" data-key="${t.key}">
+            <option value="">— sin dato —</option>
+            <option value="A/A">A/A · amarillo/amarillo</option>
+            <option value="K/A">K/A · rojo/amarillo</option>
+            <option value="K/K">K/K · rojo/rojo</option>
+          </select></div>`;
+      } else {
+        html += `<div class="row"><label for="f_${t.key}">${t.label}</label>
+          <select id="f_${t.key}" data-key="${t.key}">
+            <option value="">— sin dato —</option>
+            <option value="+">Positivo (+)</option>
+            <option value="-">Negativo (−)</option>
+          </select></div>`;
+      }
+    });
+    html += `</div></div>`;
+  });
+  html += `<div class="count" id="answeredCount">0 de 21 pruebas capturadas</div>
+    <div class="actions">
+      <button class="btn-primary" id="analyzeBtn">Analizar</button>
+      <button class="btn-ghost" id="clearBtn">Limpiar</button>
+    </div>`;
+  panel.innerHTML = html;
+  panel.querySelectorAll("select").forEach(sel => {
+    sel.addEventListener("change", e => {
+      const k = e.target.dataset.key;
+      if (e.target.value) answers[k] = e.target.value; else delete answers[k];
+      updateCount();
+      renderUserTubes();
+    });
+  });
+  document.getElementById("analyzeBtn").addEventListener("click", runAnalysis);
+  document.getElementById("clearBtn").addEventListener("click", clearAll);
+  updateCount();
+  renderUserTubes();
+}
+
+function updateCount() {
+  document.getElementById("answeredCount").textContent = `${Object.keys(answers).length} de 21 pruebas capturadas`;
+}
+
+function clearAll() {
+  Object.keys(answers).forEach(k => delete answers[k]);
+  document.querySelectorAll("#formPanel select").forEach(s => s.value = "");
+  updateCount();
+  renderUserTubes();
+  document.getElementById("emptyState").style.display = "flex";
+  const live = document.getElementById("liveResults");
+  live.style.display = "none"; live.innerHTML = "";
+}
+
+// ---------- Matching ----------
+function scoreOrganism(org) {
+  let matches = 0, partial = 0, mismatches = 0, total = 0;
+  const detail = {};
+  Object.keys(answers).forEach(key => {
+    const raw = org.tests[key];
+    if (raw === undefined || raw === "nd" || raw === null) return;
+    total++;
+    const userVal = answers[key];
+    if (key === "tsi") {
+      const allowed = raw.split(/\s*o\s*/).map(s => s.trim());
+      if (allowed.includes(userVal)) { matches++; detail[key] = "hit"; } else { mismatches++; detail[key] = "miss"; }
+      return;
+    }
+    const nv = normalize(raw);
+    if (nv === "-/+") { partial++; detail[key] = "hit"; }
+    else if (nv === userVal) { matches++; detail[key] = "hit"; }
+    else { mismatches++; detail[key] = "miss"; }
+  });
+  const score = total ? (matches + partial * 0.6) / total : 0;
+  return { matches, partial, mismatches, total, score, detail };
+}
+
+function runAnalysis() {
+  if (Object.keys(answers).length === 0) return;
+  const ranked = DB.map(org => ({ org, ...scoreOrganism(org) }))
+    .filter(r => r.total > 0)
+    .sort((a, b) => a.mismatches - b.mismatches || b.score - a.score || b.total - a.total);
+  document.getElementById("emptyState").style.display = "none";
+  const live = document.getElementById("liveResults");
+  live.style.display = "block";
+  const top = ranked.slice(0, 6);
+  let html = `<div class="cands"><h2>Microorganismos más compatibles con tus resultados</h2>`;
+  top.forEach((r, i) => {
+    const pct = Math.round(r.score * 100);
+    const barClass = r.mismatches === 0 ? "" : (r.mismatches <= 1 ? "warn" : "bad");
+    html += `<button class="cand${i === 0 ? " active" : ""}" data-idx="${i}">
+      <span class="name">${r.org.nombre}<small>${r.org.familia}</small></span>
+      <span class="bar-wrap"><span class="bar-fill ${barClass}" style="width:${pct}%"></span></span>
+      <span class="${r.mismatches ? "mismatch-tag" : "match-tag"}">${r.matches + r.partial}/${r.total} coinciden${r.mismatches ? ` · ${r.mismatches} contradicen` : ""}</span>
+    </button>`;
+  });
+  html += `</div><div id="reportSlot"></div>`;
+  live.innerHTML = html;
+  live.querySelectorAll(".cand").forEach(btn => {
+    btn.addEventListener("click", () => {
+      live.querySelectorAll(".cand").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      renderReport(top[parseInt(btn.dataset.idx, 10)]);
+    });
+  });
+  renderReport(top[0]);
+}
+
+// ---------- Report ----------
+const QC = {
+  "Escherichia coli": { s: "E. coli ATCC 25922", tsi: "A/A", gas: "+", h2s: "−", mov: "+", indol: "+" },
+  "Klebsiella pneumoniae": { s: "K. pneumoniae ATCC 700603", tsi: "A/A", gas: "+", h2s: "−", mov: "−", indol: "−" },
+  "Proteus mirabilis": { s: "P. mirabilis ATCC 43071", tsi: "K/A", gas: "+", h2s: "+", mov: "+", indol: "−" },
+  "Salmonella Typhimurium": { s: "S. Typhimurium ATCC 14028", tsi: "K/A", gas: "−", h2s: "+", mov: "+", indol: "−" },
+  "Salmonella Enteritidis": { s: "S. Enteritidis ATCC 13076", tsi: "K/A", gas: "+", h2s: "+", mov: "+", indol: "−" },
+  "Shigella flexneri": { s: "S. flexneri ATCC 12022", tsi: "K/A", gas: "−", h2s: "−", mov: "−", indol: "−" },
+  "Pseudomonas aeruginosa": { s: "P. aeruginosa ATCC 27853", tsi: "K/K", gas: "−", h2s: "−" },
+};
+
+function testValueClass(raw) {
+  const nv = normalize(raw);
+  if (nv === "-/+") return "var";
+  if (nv === "+" || /A\/A/.test(nv)) return "pos";
+  return "neg";
+}
+
+const GRID_KEYS = ["glucosa", "sacarosa", "lactosa", "rm", "vp", "oxidasa", "fad", "betagalactosidasa", "malonato", "nitrato", "gelatina"];
+
+function renderReferenceTubes(result) {
+  const { org, detail } = result;
+  let cards = "";
+  let anyVariable = false;
+  TUBE_SPECS.forEach(spec => {
+    const n = prepValues(spec, org.tests, org);
+    const variants = expandVariants(n);
+    if (variants.length > 1) anyVariable = true;
+    const srcKeys = Object.values(spec.map);
+    const rel = srcKeys.filter(k => detail[k]);
+    let badge = "";
+    if (rel.length) badge = rel.some(k => detail[k] === "miss")
+      ? `<span class="tbadge bad">≠ tu captura</span>` : `<span class="tbadge ok">✓ coincide</span>`;
+    variants.forEach((va, i) => {
+      cards += tubeCardHtml(spec, va.v, va.cap ? `Variante ${i === 0 ? "A" : "B"}: ${va.cap}` : null, badge, "Sin dato para este organismo");
+    });
+  });
+  let note = anyVariable ? `<p class="tnote">Donde el resultado es variable (−/+) o el TSI admite dos lecturas, se muestran los dos extremos posibles.</p>` : "";
+  const qc = QC[org.nombre];
+  if (qc) {
+    const sim = qc.mov ? ` · SIM: móvil ${qc.mov}, indol ${qc.indol}, H₂S ${qc.h2s}` : "";
+    note += `<p class="tnote"><strong>Cepa de control del kit MDM (${qc.s}):</strong> TSI ${qc.tsi} · gas ${qc.gas} · H₂S ${qc.h2s}${sim}.</p>`;
+  }
+  return `<div class="tubes">${cards}</div>${note}`;
+}
+
+function renderReport(result) {
+  if (!result) return;
+  const { org, detail } = result;
+  const slot = document.getElementById("reportSlot");
+  const testHtml = GRID_KEYS.map(key => {
+    const raw = org.tests[key];
+    const shown = raw === "nd" ? "ND" : raw;
+    const cellClass = detail[key] === "hit" ? "hit" : (detail[key] === "miss" ? "miss" : "");
+    return `<div class="tcell ${cellClass}"><span class="k">${TEST_LABELS[key]}</span><span class="v ${raw === "nd" ? "" : testValueClass(raw)}">${shown}</span></div>`;
+  }).join("");
+  slot.innerHTML = `
+    <div class="report">
+      <div class="report-head">
+        <div><h2>${org.nombre}</h2><div class="fam">${org.familia}</div></div>
+        <span class="gram-tag">${org.gram}</span>
+      </div>
+      <div class="section">
+        <h3>TUBOS DE REACCIÓN · PERFIL DE REFERENCIA DE ESTE MICROORGANISMO</h3>
+        ${renderReferenceTubes(result)}
+      </div>
+      <div class="section"><h3>SINTOMATOLOGÍA Y RELEVANCIA CLÍNICA</h3><p>${org.clinica}</p></div>
+      <div class="section"><h3>MEDIOS DE CULTIVO</h3>
+        <div class="chiplist">${org.medios.map(m => `<span class="chip">${m}</span>`).join("")}</div></div>
+      <div class="section"><h3>TINCIONES COMPLEMENTARIAS</h3>
+        <div class="chiplist">${(org.tinciones.length ? org.tinciones : ["Tinción de Gram (identificación de rutina)"]).map(m => `<span class="chip">${m}</span>`).join("")}</div></div>
+      <div class="section"><h3>PRUEBAS BIOQUÍMICAS/COMPLEMENTARIAS ADICIONALES</h3>
+        <div class="chiplist">${org.pruebas_extra.map(m => `<span class="chip">${m}</span>`).join("")}</div></div>
+      <div class="section"><h3>OTRAS PRUEBAS BIOQUÍMICAS ${result.total ? "(verde = coincide con tu captura, rojo = contradice)" : ""}</h3>
+        <div class="testgrid">${testHtml}</div></div>
+    </div>`;
+}
+
+renderForm();
+
+</script>
+</body>
+</html>
